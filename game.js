@@ -206,7 +206,11 @@ function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foregr
  return plane;
 }
 
-const FOREGROUND_ASPECT = { 'ivy-cottage':1.198, 'garden-cottage':1.193, 'gable-cottage':1.182, 'merchant-wagon':1.232, 'blue-wagon':1.130, 'flower-well':1.182 };
+const FOREGROUND_ASPECT = {
+ 'ivy-cottage':1.198, 'garden-cottage':1.193, 'gable-cottage':1.182, 'merchant-wagon':1.232, 'blue-wagon':1.130, 'flower-well':1.182,
+ 'red-bakery':1.285, 'blue-smithy':1.361, 'moss-workshop':1.250, 'fishing-shack':1.273, 'red-cottage':1.283, stable:1.274,
+ 'purple-potion':1.228, 'honey-lodge':1.219, 'moon-cottage':1.125, boathouse:1.225, 'moss-shrine':1.187, greenhouse:1.371
+};
 function createForegroundAsset(key, x, height, flip = false) {
  const width = height * FOREGROUND_ASPECT[key];
  const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}`, { width, height }, scene);
@@ -230,9 +234,11 @@ function createTown() {
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
  // Authored bottom framing layer: varied generated cottages, wagons, and a flower well.
  const foreground = [
-  [-31,'ivy-cottage',4.4,false],[-23,'merchant-wagon',3.3,true],[-15,'garden-cottage',4.2,true],
-  [-7,'flower-well',3.2,false],[3,'gable-cottage',4.3,false],[13,'blue-wagon',3.3,true],
-  [23,'ivy-cottage',4.1,true],[32,'flower-well',3.0,true]
+  [-34,'red-bakery',3.4,false],[-30,'ivy-cottage',3.8,true],[-26,'blue-smithy',3.2,false],[-22,'merchant-wagon',2.9,true],
+  [-18,'moss-workshop',3.2,false],[-14,'garden-cottage',3.7,true],[-10,'fishing-shack',3.3,true],[-6,'flower-well',2.8,false],
+  [-2,'red-cottage',3.7,false],[2,'gable-cottage',3.8,true],[6,'stable',3.6,false],[10,'blue-wagon',2.9,true],
+  [14,'purple-potion',3.4,false],[18,'honey-lodge',3.6,true],[22,'moon-cottage',3.6,false],[26,'boathouse',3.4,true],
+  [30,'moss-shrine',3.3,false],[34,'greenhouse',3.5,true]
  ];
  foreground.forEach(([x,key,height,flip]) => createForegroundAsset(key, x, height, flip));
 }

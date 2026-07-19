@@ -165,6 +165,8 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("g.position.z = 64", js)
         self.assertIn("'merchant-wagon'", js)
         self.assertIn("'flower-well'", js)
+        for foreground_type in ["red-bakery", "blue-smithy", "moss-workshop", "fishing-shack", "red-cottage", "stable", "purple-potion", "honey-lodge", "moon-cottage", "boathouse", "moss-shrine", "greenhouse"]:
+            self.assertIn(f"'{foreground_type}'", js)
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
