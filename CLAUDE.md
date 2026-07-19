@@ -111,15 +111,15 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 - Babylon always renders at the iPhone 14 Pro Max native panel resolution rotated to landscape, `2796 × 1290`, with a fixed 2796:1290 composition. Keep FXAA and depth-of-field disabled: native-resolution pixel billboards must remain crisp on Retina displays rather than being softened by post-processing. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
-- The authored orthographic camera uses proportional `CAM.view = 4.6` bounds, eliminating the flattened look caused by horizontal-only projection scaling. Its height is `8.0` against a 21-unit setback and `targetY = 2.4`, producing a roughly 15° floor angle. The player/NPC billboard dimensions are enlarged by the matching ~1.48× factor, preserving their prior on-screen size while the environment shows more town.
-- The top-right debug toggle opens a camera console with six direction buttons and numeric fields for horizontal X offset, vertical Y offset, forward/back Z offset, floor angle (1–75°), and orthographic view (1.5–12). Values apply live; two-pointer orbit remains available, and `重置相機` restores X/Y/Z `0`, angle `15°`, and view `4.6`. Debug controls are inspection-only and do not alter normal movement mapping.
+- The authored orthographic camera uses proportional `CAM.view = 5.0` bounds, eliminating the flattened look caused by horizontal-only projection scaling. Its height is `8.0` against a 21-unit setback and `targetY = 2.4`, producing a roughly 15° floor angle. The player/NPC billboard dimensions are enlarged by the matching ~1.48× factor, preserving their prior on-screen size while the environment shows more town.
+- The top-right debug toggle opens a camera console with six direction buttons and numeric fields for horizontal X offset, vertical Y offset, forward/back Z offset, floor angle (1–75°), and orthographic view (1.5–12). Values apply live; two-pointer orbit remains available, and `重置相機` restores X/Y/Z `0`, angle `15°`, and view `5.0`. Debug controls are inspection-only and do not alter normal movement mapping.
 
 ## Billboard aspect ratios
 
 - Cropped PNG dimensions are authoritative. Building billboard width is computed as `height × BUILDING_ASPECT[key]`; never stretch every facade into a generic requested width.
 - Keep `BUILDING_ASPECT` synchronized with the actual files in `assets/buildings/`. Props follow the same rule through `PROP_ASPECT`.
 - Collision footprints and contact shadows derive from the fitted width so visuals and physical space remain aligned.
-- The lower neighbourhood uses three staggered rows at world Z `9.4`, `13.4`, and `17.4`, with roughly 4–4.7 world-unit spacing and 50 total placements. The middle row cycles eighteen dedicated generated/matted asset types from `assets/foreground/`; the outer rows intentionally reuse `assets/buildings/` facades. Every width follows the cropped PNG aspect ratio.
+- Near-camera framing contains only carts, wagons, flower wells, and similar street props in two staggered rows at world Z `10.8` and `15.2`; no house facade belongs in the foreground. All fifteen generated cottage/shop types from `assets/foreground/` are distributed across the rear frontage at Z `-8.2`, alongside the eleven main building types. Every width follows the cropped PNG aspect ratio.
 
 ## Current gameplay
 
