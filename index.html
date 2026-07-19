@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#182b45"><title>花守村</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+    <div id="game" aria-label="花守村 Phaser 遊戲地圖"></div>
+    <header><span>✦ 花守村</span><small>第一天・午後</small></header>
+    <div id="touch-indicator"><div id="touch-knob"></div></div>
+    <section id="dialogue" aria-live="polite"><canvas id="portrait" width="56" height="56" aria-label="對話角色頭像"></canvas><div><b id="speaker">莉亞</b><p id="words">風把花的香氣送到每一條小路上。</p><i>靠近村民後按對話</i></div></section>
+    <button id="talk" class="talk">○<small>對話</small></button>
+    <section id="story" aria-live="polite">
+      <div class="cg-frame"><img id="story-cg" src="assets/village-cg-0.png" alt="村民全身立繪"></div>
+      <div class="story-box"><b id="story-name"></b><p id="story-text"></p><span>點一下繼續　▼</span></div>
+    </section>
+  </main><script src="vendor/phaser.min.js"></script><script src="game.js"></script>
+</body></html>

@@ -1,0 +1,19 @@
+name: verify
+on:
+  push:
+  pull_request:
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --check game.js
+      - run: python3 -m unittest tests/test_app.py -v
+      - name: Require living agent and design docs
+        run: test -s CLAUDE.md && test -s DESIGN.md
