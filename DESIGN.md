@@ -105,6 +105,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do verify every visual change at 390 × 844.
 - Do keep player movement responsive at 280 world pixels per second.
 - Do use Babylon.js orthographic camera following, X/Z mesh collisions, and nearest-neighbor textures.
+- Do account for Babylon's inverted V sheet coordinates: runtime player rows are `{down:3,left:2,right:1,up:0}`. Walking left/right must face the matching screen direction, and walking toward the camera must use the front-facing—not back-facing—art.
 - Do preserve the three-district road plan, eleven distinct HD-2D fantasy building types, layered foreground atmosphere, and transparent chibi pixel sprites.
 - Do keep the guild, magic shop, alchemist, smithy, tavern, bakery, flower shop, chapel, home, clocktower, and market visually distinct.
 - Do keep roads high contrast and unobstructed even when adding atmospheric effects or large buildings.
