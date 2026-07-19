@@ -92,6 +92,9 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("npc-idle-${i}.png", js)
         self.assertIn("drawHd2dAtmosphere", js)
         self.assertIn("createForegroundLayer", js)
+        self.assertIn("decorateTown", js)
+        self.assertIn("this.cameras.main.setZoom(.7)", js)
+        self.assertGreaterEqual(js.count("house(this,walls"), 24)
         fantasy_buildings = ["guild", "magic", "alchemy", "smithy", "tavern", "bakery", "flower", "chapel", "home", "clocktower", "market"]
         for key in fantasy_buildings:
             self.assertTrue((ROOT / f"assets/buildings/{key}.png").exists(), key)

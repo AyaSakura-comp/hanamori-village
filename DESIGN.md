@@ -88,6 +88,8 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do preserve the three-district road plan, eleven distinct HD-2D fantasy building types, layered foreground atmosphere, and transparent chibi pixel sprites.
 - Do keep the guild, magic shop, alchemist, smithy, tavern, bakery, flower shop, chapel, home, clocktower, and market visually distinct.
 - Do keep roads high contrast and unobstructed even when adding atmospheric effects or large buildings.
+- Do compose every 390 × 844 camera view as a dense HD-2D town vignette: multiple buildings, layered trees, flowers, barrels or crates, bunting, foreground depth, and no large empty grass fields.
+- Do validate density from both left and right corners of all three districts at camera zoom 0.7.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.

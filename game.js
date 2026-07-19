@@ -16,10 +16,11 @@ function preload(){
  ['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'].forEach(k=>this.load.image(k,`assets/buildings/${k}.png`));
  for(let i=0;i<6;i++)this.load.spritesheet(`npc${i}`,`assets/npcs/npc-idle-${i}.png`,{frameWidth:96,frameHeight:128});
 }
-function pixelTree(g,x,y){g.fillStyle(0x315d35).fillRect(x-30,y-50,60,54);g.fillStyle(0x477b3d).fillRect(x-22,y-62,44,58);g.fillStyle(0x73a94e).fillRect(x-12,y-68,28,34);g.fillStyle(0x6c452b).fillRect(x-6,y,12,28);}
+function pixelTree(g,x,y){g.fillStyle(0x173b2d,.25).fillEllipse(x+10,y+20,82,26);g.fillStyle(0x65452f).fillRoundedRect(x-7,y-5,14,35,4);g.fillStyle(0x244f36).fillCircle(x-20,y-28,27).fillCircle(x+18,y-30,29).fillCircle(x,y-55,32);g.fillStyle(0x3f7044).fillCircle(x-16,y-38,22).fillCircle(x+12,y-48,25);g.fillStyle(0x78a957).fillCircle(x-8,y-60,15);g.fillStyle(0xb7d77a,.7).fillCircle(x-16,y-65,5).fillCircle(x+5,y-54,4);}
 function cobbles(g,x,y,w,h){g.fillStyle(0x655b57).fillRect(x-5,y,w+10,h);g.fillStyle(0xb8aa91).fillRect(x,y,w,h);for(let yy=y+8;yy<y+h-8;yy+=24)for(let xx=x+5+(Math.floor(yy/24)%2?16:0);xx<x+w-8;xx+=32){g.fillStyle(0x8f8475,.8).fillRoundedRect(xx,yy,26,17,4);g.fillStyle(0xd7cbb2,.9).fillRect(xx+3,yy+2,19,3);}}
 function drawHd2dAtmosphere(s){const haze=s.add.graphics().setDepth(90000);haze.fillStyle(0xffd99b,.045).fillRect(0,0,WORLD.w,WORLD.h);for(let y=120;y<WORLD.h;y+=430){haze.fillStyle(0xffedc2,.055).fillTriangle(40,y,340,y+520,80,y+520);haze.fillStyle(0xffffff,.18).fillCircle(85,y+110,3).fillCircle(120,y+160,2).fillCircle(900,y+240,3);}s.tweens.add({targets:haze,alpha:{from:.72,to:1},duration:2600,yoyo:true,repeat:-1,ease:'Sine.inOut'});}
-function createForegroundLayer(s){const g=s.add.graphics().setDepth(85000);for(let y=260;y<WORLD.h;y+=520){g.fillStyle(0x173d32,.32).fillEllipse(-18,y,150,190);g.fillStyle(0x244f3a,.25).fillEllipse(1018,y+160,170,220);}for(let y=80;y<WORLD.h;y+=170){g.fillStyle(0xc9e79a,.55).fillCircle(25,y,3).fillCircle(970,y+40,2);}}
+function createForegroundLayer(s){const g=s.add.graphics().setDepth(85000);for(let y=260;y<WORLD.h;y+=420){g.fillStyle(0x173d32,.34).fillEllipse(-18,y,170,210);g.fillStyle(0x244f3a,.3).fillEllipse(1018,y+120,190,230);}for(let y=80;y<WORLD.h;y+=140){g.fillStyle(0xc9e79a,.6).fillCircle(25,y,3).fillCircle(970,y+40,2);}}
+function decorateTown(s){const ground=s.add.graphics().setDepth(-700);const flowers=[0xf38aa8,0xffd36e,0xeee3ff,0xe75876];for(let y=90;y<WORLD.h;y+=150){for(const x of [55,105,340,660,895,945]){ground.fillStyle(0x315f35,.85).fillEllipse(x,y+8,42,18);for(let i=0;i<5;i++)ground.fillStyle(flowers[(i+y+x)%flowers.length],.95).fillCircle(x-15+i*7,y+(i%2)*5,4);}}for(let y=300;y<WORLD.h;y+=440){ground.fillStyle(0x6c452b).fillRoundedRect(110,y,36,27,5).fillRoundedRect(854,y+65,36,27,5);ground.lineStyle(3,0xb9844d).strokeCircle(128,y+13,11).strokeCircle(872,y+78,11);ground.fillStyle(0x9b6b3e).fillRect(330,y+45,34,24).fillRect(636,y+90,30,28);}const flags=s.add.graphics().setDepth(82000);for(let y=360;y<WORLD.h;y+=610){flags.lineStyle(3,0x49392f,.75).lineBetween(70,y,930,y+25);for(let x=100;x<920;x+=85){const colors=[0xd84f52,0xe8b94c,0x3d9d76,0x5475c5];flags.fillStyle(colors[(x+y)%4],.9).fillTriangle(x,y+2,x+24,y+3,x+12,y+31);}}}
 function drawZone(s,y,index){
  const g=s.add.graphics().setDepth(-900);g.fillStyle(index===2?0x79a957:index===1?0x6fa451:0x5f9d58).fillRect(0,y,WORLD.w,1200);
  for(let yy=y+20;yy<y+1180;yy+=64)for(let xx=20;xx<980;xx+=64){g.fillStyle((xx+yy)%128?0x8db965:0xa1c86e).fillRect(xx,yy,7,5);}
@@ -30,13 +31,23 @@ function drawZone(s,y,index){
  for(let ty=y+100;ty<y+1150;ty+=180){pixelTree(g,70,ty);pixelTree(g,930,ty+70);}
 }
 function drawWorld(s){ZONES.forEach((z,i)=>drawZone(s,z.y,i));}
-function house(s,walls,key,x,y,w=330,h=270){const shadow=s.add.ellipse(x,y+75,w*.72,h*.2,0x182629,.24).setDepth(y-2);const image=s.add.image(x,y,key).setDisplaySize(w,h).setDepth(y);const body=s.add.rectangle(x,y+55,w*.62,h*.34,0,0);walls.add(body);body.setVisible(false);return {image,shadow};}
+function house(s,walls,key,x,y,w=270,h=220,flip=false){const shadow=s.add.ellipse(x,y+62,w*.74,h*.2,0x182629,.27).setDepth(y-2);const image=s.add.image(x,y,key).setDisplaySize(w,h).setDepth(y).setFlipX(flip);const body=s.add.rectangle(x,y+48,w*.6,h*.32,0,0);walls.add(body);body.setVisible(false);return {image,shadow};}
 function create(){
  scene=this;this.physics.world.setBounds(0,0,WORLD.w,WORLD.h);drawWorld(this);const walls=this.physics.add.staticGroup();
- house(this,walls,'bakery',245,260);house(this,walls,'alchemy',755,270);house(this,walls,'market',245,930,350,240);house(this,walls,'magic',755,965);
- house(this,walls,'guild',245,1390,350,255);house(this,walls,'clocktower',755,1430,210,330);house(this,walls,'flower',245,2200);house(this,walls,'chapel',755,2200);
- house(this,walls,'smithy',245,2680,340,265);house(this,walls,'tavern',755,2700);house(this,walls,'home',245,3370);house(this,walls,'guild',755,3370,350,255);
- drawHd2dAtmosphere(this);createForegroundLayer(this);
+ house(this,walls,'bakery',260,145);house(this,walls,'alchemy',740,150,270,220,true);
+ house(this,walls,'home',260,390,255,205,true);house(this,walls,'magic',740,390,265,220);
+ house(this,walls,'market',260,835,285,205);house(this,walls,'tavern',740,840,280,225,true);
+ house(this,walls,'flower',260,1080,260,215);house(this,walls,'chapel',740,1080,255,220);
+ house(this,walls,'guild',260,1325,285,215);house(this,walls,'clocktower',740,1320,175,270);
+ house(this,walls,'home',260,1580,255,205);house(this,walls,'bakery',740,1580,265,215,true);
+ house(this,walls,'market',260,1840,285,205,true);house(this,walls,'alchemy',740,1840,270,220);
+ house(this,walls,'flower',260,2100,260,215,true);house(this,walls,'magic',740,2100,265,220,true);
+ house(this,walls,'chapel',260,2350,255,220);house(this,walls,'guild',740,2350,280,215,true);
+ house(this,walls,'smithy',260,2600,280,220);house(this,walls,'tavern',740,2600,280,225);
+ house(this,walls,'home',260,2860,255,205,true);house(this,walls,'bakery',740,2860,265,215);
+ house(this,walls,'alchemy',260,3120,270,220,true);house(this,walls,'flower',740,3120,260,215);
+ house(this,walls,'market',260,3380,285,205);house(this,walls,'clocktower',740,3370,175,270);
+ decorateTown(this);drawHd2dAtmosphere(this);createForegroundLayer(this);
  const riverLeft=this.add.rectangle(205,560,410,170,0,0),riverRight=this.add.rectangle(795,560,410,170,0,0);walls.add(riverLeft);walls.add(riverRight);riverLeft.setVisible(false);riverRight.setVisible(false);
  this.anims.create({key:'walk-down',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[0,1,2]}),frameRate:8,repeat:-1});
  this.anims.create({key:'walk-left',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[3,4,5]}),frameRate:8,repeat:-1});
@@ -45,7 +56,7 @@ function create(){
  for(let i=0;i<6;i++)this.anims.create({key:`idle-${i}`,frames:this.anims.generateFrameNumbers(`npc${i}`,{frames:[0,1,2,1]}),frameRate:3,repeat:-1});
  player=this.physics.add.sprite(500,3260,'heroWalk',1).setDisplaySize(64,86).setDepth(3260).setCollideWorldBounds(true);player.body.setSize(34,22).setOffset(31,101);this.physics.add.collider(player,walls);
  npcs.forEach((n,i)=>{n.sprite=this.add.sprite(n.x,n.y,n.texture).setDisplaySize(66,94).setDepth(n.y).play(`idle-${i}`);});
- this.cameras.main.setBounds(0,0,WORLD.w,WORLD.h);this.cameras.main.startFollow(player,true,.13,.13);this.cameras.main.setRoundPixels(true);
+ this.cameras.main.setBounds(0,0,WORLD.w,WORLD.h);this.cameras.main.startFollow(player,true,.13,.13);this.cameras.main.setZoom(.7);this.cameras.main.setRoundPixels(true);
  this.input.on('pointerdown',startTouch);this.input.on('pointermove',dragTouch);this.input.on('pointerup',stopTouch);this.input.on('pointercancel',stopTouch);this.keys=this.input.keyboard.createCursorKeys();updateZone();
 }
 function update(){

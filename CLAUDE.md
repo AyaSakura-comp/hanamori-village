@@ -96,7 +96,8 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 ### Art acceptance checklist
 
-- Open at 390 × 844 and confirm map sprite scale, silhouette, and depth sorting.
+- Open at 390 × 844 with camera zoom 0.7 and confirm map sprite scale, silhouette, density, and depth sorting.
+- Teleport or walk to the left and right corners of all three districts and capture screenshots; every corner must contain layered buildings and props rather than broad empty grass.
 - Confirm all three idle frames run and the character does not morph or drift.
 - Trigger all four dialogue lines and confirm the matching name, portrait, and full-body CG.
 - Inspect transparent assets over light and dark backgrounds; there must be no white box, coloured fringe, neighbouring character fragment, or clipped body part.
@@ -105,4 +106,4 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 ## Current gameplay
 
-The player explores a 1000 × 3600 continuous HD-2D fantasy town made of three connected districts: South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. A clearly marked cobblestone road links every district; the river has collision and a single walkable bridge. The protagonist has four-direction, three-frame walking animation at 280 px/s built from consistent master poses rather than cross-generation morphs. Six NPCs each have a three-frame idle loop, a four-line story, and a transparent full-body dialogue CG. The game intentionally has no background music or audio controls.
+The player explores a 1000 × 3600 continuous HD-2D fantasy town made of three connected districts: South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. Eleven building designs are reused across 26 dense street placements, with varied facing, compact spacing, market props, flower borders, bunting, layered trees, foreground silhouettes, and a 0.7 camera zoom that keeps both sides of the street visible on iPhone. A clearly marked cobblestone road links every district; the river has collision and a single walkable bridge. The protagonist has four-direction, three-frame walking animation at 280 px/s built from consistent master poses rather than cross-generation morphs. Six NPCs each have a three-frame idle loop, a four-line story, and a transparent full-body dialogue CG. The game intentionally has no background music or audio controls.
