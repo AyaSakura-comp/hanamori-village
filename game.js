@@ -6,6 +6,8 @@ const CHARACTER_SCALE=1.75;
 const LANDSCAPE_RENDER = { width: 2796, height: 1290 };
 const MOBILE_RENDER = matchMedia('(pointer: coarse)').matches;
 const FRAME_INTERVAL = 1000 / 60;
+// Horizontal-only orthographic wide framing: more town at the sides without shrinking the hero vertically.
+const WIDE_ANGLE = 1.6;
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
@@ -385,7 +387,7 @@ function createScene() {
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
+function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect * WIDE_ANGLE; camera.orthoRight = view * aspect * WIDE_ANGLE; }
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
@@ -404,8 +406,12 @@ function update() {
  }
  if (player.contact) player.contact.position.set(player.position.x, 0.03, player.position.z);
  animatePlayer(length > .08, dt);
- // Fully hide only the framing facades directly over the player; partial alpha on stacked rows causes ghosting.
- for (const o of occluders) { const near = Math.abs(player.position.x - o.position.x) < o.fadeR; o.visibility = near ? 0 : 1; }
+ // Buildings over the tracked player become translucent rather than disappearing; ease the transition as the camera moves.
+ for (const o of occluders) {
+  const near = Math.abs(player.position.x - o.position.x) < o.fadeR;
+  const targetVisibility = near ? .15 : 1;
+  o.visibility += (targetVisibility - o.visibility) * .18;
+ }
  // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
  camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
  camera.position.x = player.position.x + Math.sin(debugYaw) * CAM.back; camera.position.z = Math.cos(debugYaw) * CAM.back;
