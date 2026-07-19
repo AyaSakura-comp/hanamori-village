@@ -20,6 +20,7 @@ python3 -m http.server 8088
 - `assets/`: eleven BiRefNet-matted HD-2D fantasy buildings in `assets/buildings/`, a consistency-locked 12-frame protagonist sheet, six model-matted NPC idle sheets, and six transparent character CGs.
 - `vendor/babylon.js`: locally hosted Babylon.js runtime for offline/reliable deployment.
 - `.github/workflows/ci.yml`: verifies every change and deploys `main` to GitHub Pages.
+- Keep the production host as static GitHub Pages; do not add or redesign a server solely to disable browser caching. Whenever a browser-loaded JS or CSS file changes, bump its query-string version in `index.html` (for example `game.js?v=3d-10`) so users receive the new build without requiring a manual cache clear.
 - `tests/test_app.py`: static behavioral contracts.
 
 ## Rules
@@ -108,7 +109,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 ## Fixed viewport and debug camera
 
-- Babylon always renders at the iPhone 14 Pro native panel resolution rotated to landscape, `2556 × 1179`, with a fixed 2556:1179 composition. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
+- Babylon always renders at the iPhone 14 Pro Max native panel resolution rotated to landscape, `2796 × 1290`, with a fixed 2796:1290 composition. Keep FXAA and depth-of-field disabled: native-resolution pixel billboards must remain crisp on Retina displays rather than being softened by post-processing. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 

@@ -2,8 +2,8 @@
 const WORLD = { w: 20, h: 72 };
 const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
-// iPhone 14 Pro native panel, rotated to landscape (Apple: 2556-by-1179 pixels).
-const LANDSCAPE_RENDER = { width: 2556, height: 1179 };
+// iPhone 14 Pro Max native panel, rotated to landscape (Apple: 2796-by-1290 pixels).
+const LANDSCAPE_RENDER = { width: 2796, height: 1290 };
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
@@ -305,11 +305,13 @@ function createEnvironmentEffects() {
 
 function setupPostProcess() {
  const pipeline = new BABYLON.DefaultRenderingPipeline('cinematic', true, scene, [camera]);
- pipeline.samples = 1; pipeline.fxaaEnabled = true;
+ pipeline.samples = 1;
+ // Native-resolution pixel art must stay crisp; FXAA softens billboard edges on Retina screens.
+ pipeline.fxaaEnabled = false;
  pipeline.bloomEnabled = true; pipeline.bloomThreshold = .82; pipeline.bloomWeight = .16; pipeline.bloomScale = .5;
  // Keep DoF very subtle — the CSS tilt-shift band handles most of the HD-2D blur. A strong
  // Babylon ortho DoF blurs the whole plane, so bias it toward almost-sharp.
- pipeline.depthOfFieldEnabled = true; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
+ pipeline.depthOfFieldEnabled = false; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
  pipeline.depthOfField.focusDistance = 4200; pipeline.depthOfField.focalLength = 24; pipeline.depthOfField.fStop = 22;
  pipeline.imageProcessingEnabled = true; pipeline.imageProcessing.contrast = 1.08; pipeline.imageProcessing.exposure = 1.12;
  pipeline.imageProcessing.vignetteEnabled = true; pipeline.imageProcessing.vignetteWeight = 1.05; pipeline.imageProcessing.vignetteColor = new BABYLON.Color4(.04, .07, .07, 1);
