@@ -69,6 +69,10 @@ The map always fills the viewport, including safe-area edges. HUD and dialogue a
 
 Map objects use Y-based depth so characters pass naturally in front of and behind scenery. Story CGs sit over a translucent map dimmer; transparent pixels must preserve environmental context.
 
+## Camera & terrain (HD-2D)
+
+The camera is an orthographic follow-cam with a shallow ~30° downward tilt (side-on, not top-down), framing a narrow ~12-unit-wide street so stone walls and building frontage always enclose the shot rather than leaving open grass. Ground, roads, plaza, river, bridge, retaining walls, and the back staircase are true 3D geometry textured with in-engine procedural pixel canvases (`drawGrass`/`drawCobble`/`drawRunePlaza`/`drawStoneBrick`/`drawWood`/`drawWater`); ground textures use mipmaps + trilinear + anisotropic filtering to avoid grazing-angle streaks, while sprites/walls stay crisp nearest-neighbour. The central square carries a glowing rune-circle cobble plaza as its landmark. Every billboard (buildings, NPCs, player) gets a soft radial contact-shadow decal on the ground so nothing floats.
+
 ## Shapes
 
 Dialogue panels use softly rounded rectangles. Touch indicators and the talk action are circular. Pixel-world geometry remains hard-edged and integer-aligned.
