@@ -130,6 +130,8 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("dust-motes", js)
         self.assertIn("BABYLON.Effect.ShadersStore['volumetricLightFragmentShader']", js)
         self.assertIn("new BABYLON.PostProcess('volumetric-light'", js)
+        self.assertIn("new BABYLON.Layer('visible-sunshafts'", js)
+        self.assertIn("drawVisibleSunshafts", js)
         self.assertIn("ps.emitRate = 34", js)
         self.assertIn("createFacadeSpotlights", js)
         self.assertIn("new BABYLON.SpotLight", js)

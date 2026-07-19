@@ -350,6 +350,31 @@ function createEnvironmentEffects() {
  ps.color1 = new BABYLON.Color4(1, .78, .38, .82); ps.color2 = new BABYLON.Color4(1, .93, .7, .48); ps.minSize = .045; ps.maxSize = .17; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 34; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
 }
 
+function drawVisibleSunshafts() {
+ // A foreground Babylon Layer guarantees that the broad shafts remain readable over roofs and facades.
+ // Nested translucent polygons provide feathered edges while the post-process supplies animated inner light.
+ const texture = new BABYLON.DynamicTexture('visible-sunshafts-texture', {width:1024,height:512}, scene, true);
+ const c = texture.getContext(); c.clearRect(0, 0, 1024, 512);
+ const beams = [
+  {top:645, bottom:250, width:92, alpha:.14},
+  {top:760, bottom:445, width:125, alpha:.12},
+  {top:875, bottom:650, width:82, alpha:.10}
+ ];
+ for (const b of beams) {
+  for (let ring = 3; ring >= 0; ring--) {
+   const spread = b.width * (1 + ring * .42), a = b.alpha * (1 - ring * .19);
+   const g = c.createLinearGradient(0, 0, 0, 512);
+   g.addColorStop(0, `rgba(255,246,190,${a})`); g.addColorStop(.42, `rgba(255,191,91,${a*.72})`); g.addColorStop(1, 'rgba(255,143,48,0)');
+   c.fillStyle = g; c.beginPath(); c.moveTo(b.top-spread*.18, 0); c.lineTo(b.top+spread*.18, 0);
+   c.lineTo(b.bottom+spread, 512); c.lineTo(b.bottom-spread, 512); c.closePath(); c.fill();
+  }
+ }
+ texture.hasAlpha = true; texture.update();
+ const layer = new BABYLON.Layer('visible-sunshafts', null, scene, false);
+ layer.texture = texture; layer.alphaBlendingMode = BABYLON.Engine.ALPHA_ADD; layer.alpha = .58;
+ let t = 0; scene.onBeforeRenderObservable.add(() => { t += engine.getDeltaTime()*.001; layer.alpha = .56 + Math.sin(t*.55)*.035; });
+}
+
 function setupVolumetricLightShader() {
  // Screen-space dusk shafts: broad animated cones from the upper-right, plus sparse glinting dust.
  // Keeping this in one low-cost post-process avoids extra transparent geometry and remains stable while scrolling.
@@ -415,7 +440,7 @@ function createScene() {
  const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.28, -.9, -.72), scene);
  sun.position.set(-10, 18, 18); sun.intensity = 1.58; sun.diffuse = new BABYLON.Color3(1, .68, .4); sun.specular = new BABYLON.Color3(1, .5, .24);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
- createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); updateAssetStreaming(true); createFacadeSpotlights(); createEnvironmentEffects(); setupPostProcess(); setupVolumetricLightShader();
+ createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); updateAssetStreaming(true); createFacadeSpotlights(); createEnvironmentEffects(); setupPostProcess(); setupVolumetricLightShader(); drawVisibleSunshafts();
  scene.onBeforeRenderObservable.add(update);
  return scene;
 }
