@@ -29,7 +29,7 @@ const debugPointers = new Map();
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 3.1 };
+const CAM = { height: 5.7, back: 21, targetY: 2.4, targetZ: -0.8, view: 3.1 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -197,7 +197,8 @@ function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foregr
  contactShadow(x, z + 0.1, width * .8, 1.8);
  shadowGenerator.addShadowCaster(plane);
  if (foreground) {
-  // Near-camera framing facade: no collision and no alpha fade; translucent stacked planes create ghosting.
+  // Near-camera framing facade: no collision; hide it fully near the player instead of alpha fading stacked planes.
+  plane.fadeR = width * .42; occluders.push(plane);
  } else {
   // Backdrop building: an invisible collision slab keeps the player on the street side of it.
   const blocker = box(`wall-${key}-${x}`, x, 0.9, z + 0.4, width * .8, 1.8, 0.7, material(`wallmat-${key}-${x}`, '#223329'), true); blocker.isVisible = false;
@@ -216,6 +217,7 @@ function createForegroundAsset(key, x, height, flip = false, z = 17.2) {
  p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  registerStreamedVisual(p, `assets/foreground/${key}.png`, m => { if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, flip ? 'flip' : 'normal');
  contactShadow(x, z + .1, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
+ p.fadeR = width * .42; occluders.push(p);
 }
 
 function createTown() {
@@ -402,8 +404,8 @@ function update() {
  }
  if (player.contact) player.contact.position.set(player.position.x, 0.03, player.position.z);
  animatePlayer(length > .08, dt);
- // Fade foreground occluders when the player passes behind them so they never block the path.
- for (const o of occluders) { const near = Math.abs(player.position.x - o.position.x) < o.fadeR; o.visibility += ((near ? 0.22 : 1) - o.visibility) * 0.16; }
+ // Fully hide only the framing facades directly over the player; partial alpha on stacked rows causes ghosting.
+ for (const o of occluders) { const near = Math.abs(player.position.x - o.position.x) < o.fadeR; o.visibility = near ? 0 : 1; }
  // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
  camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
  camera.position.x = player.position.x + Math.sin(debugYaw) * CAM.back; camera.position.z = Math.cos(debugYaw) * CAM.back;
