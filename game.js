@@ -109,13 +109,16 @@ function contactShadow(x, z, rx, rz) {
 
 // 3D ground material driven by real seamless texture assets (diffuse + normal, optional AO).
 // The normal map gives genuine per-stone relief under the directional sun — a true 3D floor, not a flat image.
-function groundMaterial(name, base, uScale, vScale, ao = false) {
- const m = new BABYLON.StandardMaterial(name, scene);
- const tex = (suffix) => { const t = new BABYLON.Texture(`assets/textures/${base}_${suffix}.png`, scene); t.uScale = uScale; t.vScale = vScale; t.wrapU = t.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; t.anisotropicFilteringLevel = 8; return t; };
- m.diffuseTexture = tex('color');
- m.bumpTexture = tex('normal'); m.invertNormalMapY = true;   // ambientCG maps are OpenGL convention
- if (ao) { m.ambientTexture = tex('ao'); }
- m.specularColor = new BABYLON.Color3(.06, .06, .06);
+function groundMaterial(name, uScale, vScale) {
+ // Poly Haven cobblestone_floor_001 (CC0): real medieval cobbles with full PBR response.
+ const m = new BABYLON.PBRMaterial(name, scene);
+ const tex = (file, nonColor = false) => { const t = new BABYLON.Texture(`assets/textures/${file}`, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE); t.uScale = uScale; t.vScale = vScale; t.wrapU = t.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; t.anisotropicFilteringLevel = 8; if (nonColor) t.gammaSpace = false; return t; };
+ m.albedoTexture = tex('medieval_cobble_color.jpg');
+ m.bumpTexture = tex('medieval_cobble_normal.jpg', true); m.invertNormalMapY = true;
+ m.bumpTexture.level = .9; m.useParallax = true; m.useParallaxOcclusion = true; m.parallaxScaleBias = .035;
+ m.metallicTexture = tex('medieval_cobble_roughness.jpg', true); m.useRoughnessFromMetallicTextureGreen = true; m.useMetallnessFromMetallicTextureBlue = false; m.metallic = 0;
+ m.ambientTexture = tex('medieval_cobble_ao.jpg', true); m.useAmbientInGrayScale = true; m.ambientTextureStrength = .72;
+ m.roughness = .9; m.environmentIntensity = .45;
  return m;
 }
 
@@ -124,7 +127,7 @@ function createGround() {
  // far into the foreground but ends just behind the back wall, so the background above the buildings is
  // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
  const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 150, subdivisions: 6 }, scene);
- g.position.z = 63; g.material = groundMaterial('ground', 'stone', 200, 50); g.receiveShadows = true;
+ g.position.z = 63; g.material = groundMaterial('ground', 200, 50); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -259,9 +262,9 @@ function setupPostProcess() {
  // Babylon ortho DoF blurs the whole plane, so bias it toward almost-sharp.
  pipeline.depthOfFieldEnabled = true; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
  pipeline.depthOfField.focusDistance = 4200; pipeline.depthOfField.focalLength = 24; pipeline.depthOfField.fStop = 22;
- pipeline.imageProcessingEnabled = true; pipeline.imageProcessing.contrast = 1.12; pipeline.imageProcessing.exposure = 1.02;
+ pipeline.imageProcessingEnabled = true; pipeline.imageProcessing.contrast = 1.08; pipeline.imageProcessing.exposure = 1.12;
  pipeline.imageProcessing.vignetteEnabled = true; pipeline.imageProcessing.vignetteWeight = 1.05; pipeline.imageProcessing.vignetteColor = new BABYLON.Color4(.04, .07, .07, 1);
- pipeline.imageProcessing.toneMappingEnabled = true;
+ pipeline.imageProcessing.toneMappingEnabled = true; pipeline.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
 }
 
 function createScene() {

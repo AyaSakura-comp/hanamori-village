@@ -100,6 +100,12 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("BABYLON.Camera.ORTHOGRAPHIC_CAMERA", js)
         self.assertIn("createEnvironmentEffects", js)
         self.assertIn("pipeline.imageProcessing.vignetteEnabled", js)
+        self.assertIn("new BABYLON.PBRMaterial", js)
+        self.assertIn("useParallaxOcclusion", js)
+        self.assertIn("TONEMAPPING_ACES", js)
+        for texture in ["medieval_cobble_color.jpg", "medieval_cobble_normal.jpg", "medieval_cobble_roughness.jpg", "medieval_cobble_ao.jpg"]:
+            self.assertTrue((ROOT / f"assets/textures/{texture}").exists(), texture)
+            self.assertIn(texture, js)
         self.assertIn("backdrop-filter:blur", css)
         self.assertIn("radial-gradient", css)
         self.assertIn("mix-blend-mode", css)

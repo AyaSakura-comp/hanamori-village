@@ -22,6 +22,10 @@ node --check game.js
 python3 -m unittest tests/test_app.py -v
 ```
 
+## Material source
+
+- Medieval street PBR: [Poly Haven — Cobblestone Floor 001](https://polyhaven.com/a/cobblestone_floor_001), CC0 by Rob Tuytel. The 1K albedo, OpenGL normal, roughness, and extracted AO channel are hosted locally.
+
 ## Documentation discipline
 
 - Update `CLAUDE.md` when architecture, commands, or engineering conventions change.
