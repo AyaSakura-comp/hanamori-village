@@ -77,7 +77,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("hero-walk.png", js)
         self.assertIn("setSpriteFrame", js)
         self.assertIn("animatePlayer", js)
-        self.assertIn("{down:3,left:2,right:1,up:0}", js)
+        self.assertIn("{down:3,left:2,right:1,up:3}", js)
         self.assertIn("moveWithCollisions", js)
 
     def test_game_uses_local_babylon_engine_with_3d_camera_lighting_and_postprocess(self):
