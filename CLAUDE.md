@@ -17,7 +17,7 @@ python3 -m http.server 8088
 - `index.html`: game shell and accessible DOM dialogue overlays.
 - `game.js`: Phaser scene, world rendering, Arcade Physics, camera, touch input, and story state.
 - `style.css`: iPhone-first fullscreen UI and visual-novel overlay.
-- `assets/`: generated pixel-art building sprites, a 12-frame protagonist walking sheet, NPC portraits, transparent character CGs, and three original BGM tracks under `assets/bgm/`.
+- `assets/`: generated pixel-art building sprites, a 12-frame protagonist walking sheet, NPC portraits, and transparent character CGs.
 - `vendor/phaser.min.js`: pinned Phaser 4.2.1 runtime for offline/reliable deployment.
 - `.github/workflows/ci.yml`: verifies every change and deploys `main` to GitHub Pages.
 - `tests/test_app.py`: static behavioral contracts.
@@ -37,4 +37,4 @@ python3 -m http.server 8088
 
 ## Current gameplay
 
-The player explores a 1000 × 3600 continuous tile-style pixel village made of three connected districts: South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. A clearly marked cobblestone road links every district; the river has collision and a single walkable bridge. The protagonist has four-direction, three-frame walking animation at 280 px/s, a smooth camera, generated pixel buildings, three NPC stories, and transparent full-body dialogue CGs. Original BGM starts only after a user gesture for iPhone compatibility.
+The player explores a 1000 × 3600 continuous tile-style pixel village made of three connected districts: South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. A clearly marked cobblestone road links every district; the river has collision and a single walkable bridge. The protagonist has four-direction, three-frame walking animation at 280 px/s, a smooth camera, generated pixel buildings, three NPC stories, and transparent full-body dialogue CGs. The game intentionally has no background music or audio controls.

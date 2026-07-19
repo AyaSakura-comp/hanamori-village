@@ -6,9 +6,7 @@ const npcs=[
  {x:650,y:3040,name:'米洛',face:1,texture:'npc1',lines:['你就是剛來的旅行者吧？我是木匠米洛。','南邊這條寬路通往村口，兩旁都是新修好的木屋。','沿著淺色石板走，便不會踩進居民的花圃。','有空再來，我會替你做一雙更適合旅行的靴子。']},
  {x:650,y:930,name:'莎婆婆',face:2,texture:'npc2',lines:['呵呵，年輕人，你終於走到河畔來了。','過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。','溪水不能直接走過去，要從中央石橋通行。','記住道路不只是方向，也是村民一起生活的痕跡。']}
 ];
-const MUSIC={day:'assets/bgm/hanamori-day.mp3',twilight:'assets/bgm/hanamori-twilight.mp3',dialogue:'assets/bgm/hanamori-dialogue.mp3'};
-const exploreTrack=new Date().getHours()>=17?MUSIC.twilight:MUSIC.day;
-let scene,player,activeNpc=null,line=0,talking=false,vector={x:0,y:0},origin=null,musicStarted=false,direction='down',zoneIndex=-1;
+let scene,player,activeNpc=null,line=0,talking=false,vector={x:0,y:0},origin=null,direction='down',zoneIndex=-1;
 function camera(){return scene?.cameras.main;}
 function blocked(){return false;}
 function preload(){
@@ -49,17 +47,15 @@ function update(){
  if(Math.abs(x)+Math.abs(y)>.08){direction=Math.abs(x)>Math.abs(y)?(x<0?'left':'right'):(y<0?'up':'down');player.anims.play(`walk-${direction}`,true);}else{player.anims.stop();player.setFrame({down:1,left:4,right:7,up:10}[direction]);}updateZone();
 }
 function updateZone(){if(!player)return;const next=Math.min(2,Math.floor(player.y/1200));if(next!==zoneIndex){zoneIndex=next;const label=document.querySelector('#location');if(label)label.textContent=`✦ ${ZONES[next].name}`;}}
-function setMusic(src,volume=.75){const audio=document.querySelector('#bgm');if(!audio)return;if(!audio.src.endsWith(src)){audio.src=src;audio.loop=true;}audio.volume=volume;musicStarted=true;audio.play().catch(()=>{musicStarted=false;});}
-function toggleMusic(e){e.stopPropagation();const audio=document.querySelector('#bgm'),button=document.querySelector('#music');if(!musicStarted){setMusic(exploreTrack,.75);button.textContent='♫';return;}audio.muted=!audio.muted;button.textContent=audio.muted?'♬':'♫';button.setAttribute('aria-pressed',String(audio.muted));if(!audio.muted)setMusic(talking?MUSIC.dialogue:exploreTrack,talking?.38:.75);}
-function startTouch(p){if(!musicStarted)setMusic(exploreTrack,.75);origin={x:p.x,y:p.y};const i=document.querySelector('#touch-indicator');i.style.left=`${p.x}px`;i.style.top=`${p.y}px`;i.classList.add('active');}
+function startTouch(p){origin={x:p.x,y:p.y};const i=document.querySelector('#touch-indicator');i.style.left=`${p.x}px`;i.style.top=`${p.y}px`;i.classList.add('active');}
 function dragTouch(p){if(!origin||!p.isDown)return;const dx=p.x-origin.x,dy=p.y-origin.y,d=Math.hypot(dx,dy)||1,k=Math.min(38,d);vector={x:dx/d*k/38,y:dy/d*k/38};document.querySelector('#touch-knob').style.transform=`translate(${vector.x*38}px,${vector.y*38}px)`;}
 function stopTouch(){origin=null;vector={x:0,y:0};document.querySelector('#touch-indicator').classList.remove('active');document.querySelector('#touch-knob').style.transform='';}
 function move(dx,dy){player?.setVelocity(dx*MOVE_SPEED,dy*MOVE_SPEED);}
 function nearest(){return npcs.find(n=>Phaser.Math.Distance.Between(n.x,n.y,player.x,player.y)<105);}
 function drawPortrait(index){if(!portraits.complete)return;const c=document.querySelector('#portrait'),p=c.getContext('2d'),w=portraits.width/3;p.clearRect(0,0,56,56);p.drawImage(portraits,w*index,0,w,portraits.height,0,0,56,56);}
-function interact(){const npc=nearest();if(!npc){document.querySelector('#words').textContent='沿著石板路尋找村民吧。';return;}activeNpc=npc;line=0;talking=true;setMusic(MUSIC.dialogue,.38);player.setVelocity(0);document.querySelector('#story').className='active';document.querySelector('#story-cg').src=`assets/village-cg-${npc.face}.png`;document.querySelector('#story-name').textContent=npc.name;advanceStory();}
+function interact(){const npc=nearest();if(!npc){document.querySelector('#words').textContent='沿著石板路尋找村民吧。';return;}activeNpc=npc;line=0;talking=true;player.setVelocity(0);document.querySelector('#story').className='active';document.querySelector('#story-cg').src=`assets/village-cg-${npc.face}.png`;document.querySelector('#story-name').textContent=npc.name;advanceStory();}
 function advanceStory(){if(!activeNpc)return;if(line>=activeNpc.lines.length)return endStory();document.querySelector('#story-text').textContent=activeNpc.lines[line++];}
-function endStory(){setMusic(exploreTrack,.75);document.querySelector('#story').className='';document.querySelector('#speaker').textContent=activeNpc.name;document.querySelector('#words').textContent='這段對話已經聽完了。';drawPortrait(activeNpc.face);activeNpc=null;talking=false;}
-function bindDom(){document.querySelector('#music').addEventListener('pointerdown',toggleMusic);document.querySelector('#talk').addEventListener('pointerdown',e=>{e.stopPropagation();interact();});document.querySelector('#story').addEventListener('pointerdown',e=>{e.stopPropagation();advanceStory();});addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')interact();});}
+function endStory(){document.querySelector('#story').className='';document.querySelector('#speaker').textContent=activeNpc.name;document.querySelector('#words').textContent='這段對話已經聽完了。';drawPortrait(activeNpc.face);activeNpc=null;talking=false;}
+function bindDom(){document.querySelector('#talk').addEventListener('pointerdown',e=>{e.stopPropagation();interact();});document.querySelector('#story').addEventListener('pointerdown',e=>{e.stopPropagation();advanceStory();});addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')interact();});}
 const config={type:Phaser.AUTO,parent:'game',width:innerWidth,height:innerHeight,pixelArt:true,backgroundColor:'#79be55',physics:{default:'arcade',arcade:{debug:false}},scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'},scene:{preload,create,update}};
 new Phaser.Game(config);portraits.onload=()=>drawPortrait(0);bindDom();

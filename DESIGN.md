@@ -76,7 +76,6 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 ## Components
 
 - **Talk button:** bottom-right, thumb reachable, coral with a cream ring.
-- **Music button:** top-right below the header, 44px circular navy control with a cream border; toggles mute without blocking map movement.
 - **Exploration dialogue:** compact translucent navy panel at the bottom.
 - **Story panel:** large bottom caption with speaker name in gold and 20px body copy.
 - **Character CG:** transparent PNG, full body, contained above the story panel without a white matte.
@@ -88,7 +87,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do use Phaser camera following, Arcade Physics, and integer rendering.
 - Do preserve the three-district road plan, generated building sprites, and transparent chibi pixel sprites.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
-- Do keep exploration BGM warm and pastoral, and dialogue BGM quieter than exploration.
+- Do keep the experience silent: no BGM, audio player, or music control.
 - Do update this document whenever tokens or visual behavior change.
 - Don't place opaque backgrounds behind character CGs.
 - Don't add a fixed joystick; touch origin follows the player's thumb.

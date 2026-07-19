@@ -35,17 +35,6 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("#touch-indicator", css)
         self.assertIn("#portrait", css)
 
-    def test_generated_bgm_plays_on_mobile_and_switches_for_dialogue(self):
-        html = (ROOT / "index.html").read_text(encoding="utf-8")
-        js = (ROOT / "game.js").read_text(encoding="utf-8")
-        self.assertIn('id="bgm"', html)
-        self.assertIn('id="music"', html)
-        self.assertIn("hanamori-day.mp3", js)
-        self.assertIn("hanamori-twilight.mp3", js)
-        self.assertIn("hanamori-dialogue.mp3", js)
-        self.assertIn("function setMusic", js)
-        self.assertIn("if(!musicStarted){setMusic(exploreTrack,.75)", js)
-
     def test_world_map_scrolls_under_the_centered_player(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
