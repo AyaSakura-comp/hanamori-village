@@ -123,8 +123,8 @@ function createGround() {
  // The floor is ONE big textured 3D plane (paved stone, diffuse + normal for real relief). It reaches
  // far into the foreground but ends just behind the back wall, so the background above the buildings is
  // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
- const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 212, subdivisions: 6 }, scene);
- g.position.z = 90; g.material = groundMaterial('ground', 'stone', 200, 70); g.receiveShadows = true;
+ const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 150, subdivisions: 6 }, scene);
+ g.position.z = 63; g.material = groundMaterial('ground', 'stone', 200, 50); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -147,12 +147,9 @@ function runeDecalMaterial() {
 function createWalls() {
  const stone = texturedMaterial('wall', 256, drawStoneBrick, 10, 1.2, true);
  const capMat = material('wall-cap', '#7d766a');
- // (No back wall — the backdrop is a dense treeline against the sky instead.)
- // Low stone parapet along the near edge of the street (grounds the foreground, blocks falling off).
- box('street-curb', 0, 0.28, 4.0, 96, 0.56, 0.5, stone, true);
- box('street-curb-cap', 0, 0.57, 4.0, 96, 0.12, 0.62, capMat);
- // End caps so the street reads as an enclosed town, not an open strip.
- for (const ex of [-42, 42]) box(`end-wall-${ex}`, ex, 1.4, -2, 0.8, 2.8, 20, stone, true);
+ // No back wall and no foreground curb — the town sits openly between its own buildings and the sky.
+ // End caps (off-screen) keep the walkable strip bounded at the extremes.
+ for (const ex of [-46, 46]) box(`end-wall-${ex}`, ex, 1.4, -2, 0.8, 2.8, 20, stone, true);
 }
 
 function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foreground = false) {
@@ -180,9 +177,11 @@ function createTown() {
   const w = 5.2 + (i % 3) * 0.5, h = 4.4 + (i % 4) * 0.4;
   createBuilding(key, x, -6.0 - (i % 2) * 0.5, w, h, i % 2 === 0);
  });
- // A second, deeper row peeking between the front row for background density (blurred by DoF).
- for (const x of [-27, -12, 6, 22]) createBuilding(BUILDINGS[(x + 40) % BUILDINGS.length], x, -9.2, 5.5, 5.2, x % 2 === 0);
- createBuilding('clocktower', -18, -7.5, 4.4, 7.6);
+ // A fuller background row of houses (offset to peek between the front row) — extra density that never
+ // blocks the walkable street or hides the characters, and hides the ground's far edge behind rooftops.
+ const backX = [-33, -28.5, -23.5, -18.5, -13.5, -9, -4.5, 0.5, 5.5, 10.5, 17, 23, 28, 33];
+ backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
+ createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
  // Foreground occluders: a few buildings between camera and street that fade as the player passes.
  for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 6.4, 6.0, 5.0, x % 2 === 0, true);
 }
@@ -192,13 +191,10 @@ const DECOR = new Set(['tree', 'bushes', 'fountain', 'lamp', 'flowerbed', 'barre
 const has = k => DECOR.has(k);
 // Vegetation and street props fill every corner so no bare grass or empty plaza remains.
 function createDecor() {
- // Backdrop treeline fills the grass band above the buildings; midground trees add depth.
+ // Just a few scattered trees (not a dense backdrop): a couple in front, a couple filling background gaps.
  if (has('tree')) {
-  // Dense two-row treeline backdrop: hides the ground's far edge and fills the sky behind the town.
-  for (let x = -46; x <= 46; x += 5) createProp('tree', x, -12, 9 + (x % 3), { noShadow: true, sink: 0.8, flip: x % 2 === 0 });
-  for (let x = -43.5; x <= 46; x += 5) createProp('tree', x, -13.6, 9.6 + (x % 2), { noShadow: true, sink: 1.0, flip: x % 2 !== 0 });
-  // Midground trees among the buildings for depth.
-  for (const x of [-25, -14, -1, 9, 21, 33]) createProp('tree', x, -4.7, 6.5, { sink: 0.5, flip: x % 2 === 0 });
+  for (const x of [-15, 20] ) createProp('tree', x, -4.6, 6.2, { sink: 0.5, flip: x % 2 === 0 });
+  for (const x of [-30, 2, 31]) createProp('tree', x, -9.0, 6.6, { sink: 0.6, flip: x % 2 === 0 });
  }
  // Bushes and flowerbeds along the grass strips and the near curb.
  if (has('bushes')) {
