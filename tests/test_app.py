@@ -108,7 +108,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("function createGround", js)
         self.assertIn("function createTown", js)
         self.assertIn("BABYLON.Camera.ORTHOGRAPHIC_CAMERA", js)
-        self.assertIn("view: 6.2", js)
+        self.assertIn("view: 3.1", js)
         self.assertIn("createEnvironmentEffects", js)
         self.assertIn("pipeline.imageProcessing.vignetteEnabled", js)
         self.assertIn("new BABYLON.PBRMaterial", js)
@@ -160,7 +160,12 @@ class VillageAppContract(unittest.TestCase):
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
-        self.assertIn("p.position.set(x, height / 2, 17.2)", js)
+        self.assertIn("p.position.set(x, height / 2, z)", js)
+        self.assertIn("const foregroundRows = [", js)
+        self.assertIn("z:9.4", js)
+        self.assertIn("z:13.4", js)
+        self.assertIn("z:17.4", js)
+        self.assertIn("createBuilding(key, x, row.z", js)
         self.assertIn("height: 164", js)
         self.assertIn("g.position.z = 64", js)
         self.assertIn("'merchant-wagon'", js)

@@ -29,7 +29,7 @@ const debugPointers = new Map();
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 6.2 };
+const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 3.1 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -197,8 +197,7 @@ function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foregr
  contactShadow(x, z + 0.1, width * .8, 1.8);
  shadowGenerator.addShadowCaster(plane);
  if (foreground) {
-  // Near-camera occluder: no collision (never blocks the path); fades out when the player is behind it.
-  plane.fadeR = width * 0.5 + 1.2; occluders.push(plane);
+  // Near-camera framing facade: no collision and no alpha fade; translucent stacked planes create ghosting.
  } else {
   // Backdrop building: an invisible collision slab keeps the player on the street side of it.
   const blocker = box(`wall-${key}-${x}`, x, 0.9, z + 0.4, width * .8, 1.8, 0.7, material(`wallmat-${key}-${x}`, '#223329'), true); blocker.isVisible = false;
@@ -208,15 +207,15 @@ function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foregr
 
 const FOREGROUND_ASPECT = {
  'ivy-cottage':1.198, 'garden-cottage':1.193, 'gable-cottage':1.182, 'merchant-wagon':1.232, 'blue-wagon':1.130, 'flower-well':1.182,
- 'red-bakery':1.285, 'blue-smithy':1.361, 'moss-workshop':1.250, 'fishing-shack':1.273, 'red-cottage':1.283, stable:1.274,
- 'purple-potion':1.228, 'honey-lodge':1.219, 'moon-cottage':1.125, boathouse:1.225, 'moss-shrine':1.187, greenhouse:1.371
+ 'red-bakery':1.285, 'blue-smithy':1.361, 'moss-workshop':1.250, 'fishing-shack':1.273, 'red-cottage':1.283, 'stable':1.274,
+ 'purple-potion':1.228, 'honey-lodge':1.219, 'moon-cottage':1.125, 'boathouse':1.225, 'moss-shrine':1.187, 'greenhouse':1.371
 };
-function createForegroundAsset(key, x, height, flip = false) {
+function createForegroundAsset(key, x, height, flip = false, z = 17.2) {
  const width = height * FOREGROUND_ASPECT[key];
- const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}`, { width, height }, scene);
- p.position.set(x, height / 2, 17.2); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
+ const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}-${z}`, { width, height }, scene);
+ p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  registerStreamedVisual(p, `assets/foreground/${key}.png`, m => { if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, flip ? 'flip' : 'normal');
- contactShadow(x, 17.3, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
+ contactShadow(x, z + .1, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
 }
 
 function createTown() {
@@ -232,15 +231,28 @@ function createTown() {
  const backX = [-33, -28.5, -23.5, -18.5, -13.5, -9, -4.5, 0.5, 5.5, 10.5, 17, 23, 28, 33];
  backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
- // Authored bottom framing layer: varied generated cottages, wagons, and a flower well.
- const foreground = [
-  [-34,'red-bakery',3.4,false],[-30,'ivy-cottage',3.8,true],[-26,'blue-smithy',3.2,false],[-22,'merchant-wagon',2.9,true],
-  [-18,'moss-workshop',3.2,false],[-14,'garden-cottage',3.7,true],[-10,'fishing-shack',3.3,true],[-6,'flower-well',2.8,false],
-  [-2,'red-cottage',3.7,false],[2,'gable-cottage',3.8,true],[6,'stable',3.6,false],[10,'blue-wagon',2.9,true],
-  [14,'purple-potion',3.4,false],[18,'honey-lodge',3.6,true],[22,'moon-cottage',3.6,false],[26,'boathouse',3.4,true],
-  [30,'moss-shrine',3.3,false],[34,'greenhouse',3.5,true]
+ // Three staggered near-camera rows form a crowded neighbourhood instead of one ruler-straight lineup.
+ // The outer rows deliberately reuse the main facade set; only the middle row uses dedicated foreground art.
+ const foregroundRows = [
+  { z:9.4, start:-35, step:4.7, count:16, source:'building', height:4.1, offset:3 },
+  { z:13.4, start:-33, step:4.0, count:18, source:'foreground', height:3.5, offset:0 },
+  { z:17.4, start:-36, step:4.6, count:16, source:'building', height:4.4, offset:7 }
  ];
- foreground.forEach(([x,key,height,flip]) => createForegroundAsset(key, x, height, flip));
+ const foregroundKeys = Object.keys(FOREGROUND_ASPECT);
+ foregroundRows.forEach((row, ri) => {
+  for (let i = 0; i < row.count; i++) {
+   const x = row.start + i * row.step;
+   const height = row.height + ((i + ri) % 3 - 1) * .25;
+   const flip = (i + ri) % 2 === 0;
+   if (row.source === 'building') {
+    const key = BUILDINGS[(i + row.offset) % BUILDINGS.length];
+    createBuilding(key, x, row.z, 5, height, flip, true);
+   } else {
+    const key = foregroundKeys[(i + row.offset) % foregroundKeys.length];
+    createForegroundAsset(key, x, height, flip, row.z);
+   }
+  }
+ });
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).

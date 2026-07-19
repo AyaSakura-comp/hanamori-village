@@ -111,7 +111,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 - Babylon always renders at the iPhone 14 Pro Max native panel resolution rotated to landscape, `2796 × 1290`, with a fixed 2796:1290 composition. Keep FXAA and depth-of-field disabled: native-resolution pixel billboards must remain crisp on Retina displays rather than being softened by post-processing. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
-- The authored orthographic camera uses `CAM.view = 6.2`, keeping the player and nearby facade details closer and larger without changing the fixed native render target.
+- The authored orthographic camera uses `CAM.view = 3.1`, a deliberate 50% punch-in from `6.2` so the player and nearby facade details appear at roughly twice their previous screen size.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 
 ## Billboard aspect ratios
@@ -119,7 +119,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Cropped PNG dimensions are authoritative. Building billboard width is computed as `height × BUILDING_ASPECT[key]`; never stretch every facade into a generic requested width.
 - Keep `BUILDING_ASPECT` synchronized with the actual files in `assets/buildings/`. Props follow the same rule through `PROP_ASPECT`.
 - Collision footprints and contact shadows derive from the fitted width so visuals and physical space remain aligned.
-- The lower framing layer uses eighteen dedicated generated/matted asset types in `assets/foreground/`: cottages, wagons, bakery, smithy, moss workshop, fishing shack, stable, potion shop, honey lodge, boathouse, shrine, greenhouse, and flower well. Their `FOREGROUND_ASPECT` values come from each cropped PNG, and eighteen placements span X `-34…34` at four-unit intervals on world Z `17.2`, filling the lower edge while remaining clear of the player lane.
+- The lower neighbourhood uses three staggered rows at world Z `9.4`, `13.4`, and `17.4`, with roughly 4–4.7 world-unit spacing and 50 total placements. The middle row cycles eighteen dedicated generated/matted asset types from `assets/foreground/`; the outer rows intentionally reuse `assets/buildings/` facades. Every width follows the cropped PNG aspect ratio.
 
 ## Current gameplay
 
