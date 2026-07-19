@@ -77,7 +77,7 @@ The world is a **landscape horizontal side-scroller**. The street runs along the
 
 **3D geometry (real meshes, lit, cast/receive shadows, collide):**
 - Ground: a single large paved-stone plane driven by a **real seamless texture asset** (CC0 from ambientCG) with **diffuse + normal maps** so the stone catches the directional sun as genuine relief — not a flat image. Files live in `assets/textures/` (`stone_*`), tiled with anisotropic filtering. The plane reaches far into the foreground but ends just behind the back wall, so the background above the buildings is sky + treeline, not stone riding up the screen.
-- Architecture of the enclosure: stone retaining back-wall, low street curb, and end-cap walls (procedural stone-brick canvas material, `drawStoneBrick`). These carry the collision that keeps the player on the street.
+- Architecture of the enclosure: a low street curb and end-cap walls (procedural stone-brick canvas material, `drawStoneBrick`). The town's far side is backed by a dense two-row treeline (no back wall) against the sky. Collision + the shallow Z clamp keep the player on the street.
 - Invisible collision slabs behind backdrop buildings and under solid props.
 
 **2D pixel billboards (flat planes, `BILLBOARDMODE_Y`, always face camera):**
