@@ -127,7 +127,8 @@ function createGround() {
  // far into the foreground but ends just behind the back wall, so the background above the buildings is
  // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
  const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 150, subdivisions: 6 }, scene);
- g.position.z = 63; g.material = groundMaterial('ground', 200, 50); g.receiveShadows = true;
+ // Fewer V repeats stretch stones along world Z to counter the side camera's foreshortening.
+ g.position.z = 63; g.material = groundMaterial('ground', 200, 34); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -246,12 +247,29 @@ function loadAssets() {
  });
 }
 
+function createSunsetSky() {
+ // A low-cost painted sky plane: dusk gradient, a soft sun, and translucent cloud banks behind town.
+ const skyTex = new BABYLON.DynamicTexture('sunset-sky-texture', { width: 512, height: 256 }, scene, true);
+ const c = skyTex.getContext(), g = c.createLinearGradient(0, 0, 0, 256);
+ g.addColorStop(0, '#586781'); g.addColorStop(.45, '#aa7971'); g.addColorStop(.78, '#e5a66d'); g.addColorStop(1, '#f3c486'); c.fillStyle = g; c.fillRect(0, 0, 512, 256);
+ const sun = c.createRadialGradient(116, 177, 3, 116, 177, 42); sun.addColorStop(0, 'rgba(255,247,190,.95)'); sun.addColorStop(.25, 'rgba(255,202,112,.7)'); sun.addColorStop(1, 'rgba(255,158,75,0)'); c.fillStyle = sun; c.fillRect(65, 126, 102, 102); skyTex.update();
+ const skyMat = new BABYLON.StandardMaterial('sunset-sky-mat', scene); skyMat.emissiveTexture = skyTex; skyMat.disableLighting = true; skyMat.backFaceCulling = false;
+ const sky = BABYLON.MeshBuilder.CreatePlane('sunset-sky', { width: 110, height: 28 }, scene); sky.position.set(0, 8.5, -18); sky.material = skyMat; sky.isPickable = false;
+ const cloudTex = new BABYLON.DynamicTexture('sunset-cloud-texture', { width: 512, height: 192 }, scene, true); const cc = cloudTex.getContext(); cc.clearRect(0, 0, 512, 192);
+ for (let i = 0; i < 20; i++) { const x = 10 + rnd(i + 91) * 490, y = 88 + rnd(i + 31) * 42, rx = 28 + rnd(i + 8) * 58, ry = 9 + rnd(i + 19) * 14; cc.fillStyle = i % 3 ? 'rgba(255,215,190,.68)' : 'rgba(105,94,130,.58)'; cc.beginPath(); cc.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); cc.fill(); }
+ cloudTex.hasAlpha = true; cloudTex.update(); const cloudMat = new BABYLON.StandardMaterial('sunset-cloud-mat', scene); cloudMat.diffuseTexture = cloudTex; cloudMat.emissiveTexture = cloudTex; cloudMat.opacityTexture = cloudTex; cloudMat.useAlphaFromDiffuseTexture = true; cloudMat.alpha = .8; cloudMat.disableLighting = true; cloudMat.backFaceCulling = false;
+ const clouds = BABYLON.MeshBuilder.CreatePlane('sunset-cloud', { width: 100, height: 20 }, scene); clouds.position.set(0, 9, -17.5); clouds.material = cloudMat; clouds.isPickable = false;
+ // Stylised god-rays: additive translucent planes from the upper-left sun toward the street.
+ const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .055; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
+ for (let i = 0; i < 3; i++) { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, { width: 1.8 + i, height: 18 }, scene); b.position.set(-9 + i * 3.8, 6.5, -4.8); b.rotation.z = -.32 + i * .035; b.material = beamMat; b.isPickable = false; }
+}
+
 function createEnvironmentEffects() {
- const ps = new BABYLON.ParticleSystem('light-motes', 90, scene);
+ const ps = new BABYLON.ParticleSystem('dust-motes', 140, scene);
  ps.particleTexture = new BABYLON.DynamicTexture('mote', { width: 16, height: 16 }, scene, false, BABYLON.Texture.NEAREST_SAMPLINGMODE);
- const pc = ps.particleTexture.getContext(); pc.fillStyle = 'white'; pc.beginPath(); pc.arc(8, 8, 5, 0, Math.PI * 2); pc.fill(); ps.particleTexture.update();
- ps.emitter = new BABYLON.Vector3(0, 4, 0); ps.minEmitBox = new BABYLON.Vector3(-9, 0, -35); ps.maxEmitBox = new BABYLON.Vector3(9, 5, 35);
- ps.color1 = new BABYLON.Color4(1, .86, .48, .5); ps.color2 = new BABYLON.Color4(.8, 1, .7, .22); ps.minSize = .03; ps.maxSize = .11; ps.minLifeTime = 4; ps.maxLifeTime = 8; ps.emitRate = 9; ps.gravity = new BABYLON.Vector3(0, .02, 0); ps.start();
+ const pc = ps.particleTexture.getContext(); const pg = pc.createRadialGradient(8, 8, 1, 8, 8, 7); pg.addColorStop(0, 'rgba(255,245,205,1)'); pg.addColorStop(1, 'rgba(255,210,135,0)'); pc.fillStyle = pg; pc.fillRect(0, 0, 16, 16); ps.particleTexture.update();
+ ps.emitter = new BABYLON.Vector3(0, 3, 0); ps.minEmitBox = new BABYLON.Vector3(-11, -2, -8); ps.maxEmitBox = new BABYLON.Vector3(11, 5, 8);
+ ps.color1 = new BABYLON.Color4(1, .78, .38, .55); ps.color2 = new BABYLON.Color4(1, .93, .7, .2); ps.minSize = .025; ps.maxSize = .095; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 14; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
 }
 
 function setupPostProcess() {
@@ -269,18 +287,18 @@ function setupPostProcess() {
 
 function createScene() {
  scene = new BABYLON.Scene(engine);
- scene.clearColor = new BABYLON.Color4(.66, .72, .74, 1);   // soft afternoon sky behind the treeline
- scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR; scene.fogColor = new BABYLON.Color3(.7, .73, .68); scene.fogStart = 55; scene.fogEnd = 95;
+ scene.clearColor = new BABYLON.Color4(.47, .38, .46, 1);   // dusk fallback behind the painted sunset sky
+ scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR; scene.fogColor = new BABYLON.Color3(.66, .48, .4); scene.fogStart = 55; scene.fogEnd = 95;
  scene.collisionsEnabled = true;
  camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, CAM.height, CAM.back), scene);
  camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
  camera.setTarget(new BABYLON.Vector3(0, CAM.targetY, CAM.targetZ));
  camera.inputs.clear(); resizeCamera();
- new BABYLON.HemisphericLight('sky', new BABYLON.Vector3(-.2, 1, .1), scene).intensity = .9;
- const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(-.5, -1.05, .55), scene);
- sun.position.set(12, 18, -10); sun.intensity = 1.35; sun.diffuse = new BABYLON.Color3(1, .95, .82);
+ const skyLight = new BABYLON.HemisphericLight('sky', new BABYLON.Vector3(-.2, 1, .1), scene); skyLight.intensity = .72; skyLight.diffuse = new BABYLON.Color3(.72, .68, .8); skyLight.groundColor = new BABYLON.Color3(.22, .2, .3);
+ const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.62, -1.05, .42), scene);
+ sun.position.set(-18, 20, -8); sun.intensity = 1.65; sun.diffuse = new BABYLON.Color3(1, .63, .32); sun.specular = new BABYLON.Color3(1, .48, .2);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
- createGround(); createWalls(); createTown(); createDecor(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
+ createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
  scene.onBeforeRenderObservable.add(update);
  return scene;
 }
