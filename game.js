@@ -183,7 +183,7 @@ function createTown() {
  backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
  // Foreground occluders: a few buildings between camera and street that fade as the player passes.
- for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 6.4, 6.0, 5.0, x % 2 === 0, true);
+ for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 8.2, 6.0, 5.0, x % 2 === 0, true);
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).
