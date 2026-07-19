@@ -14,6 +14,8 @@ const npcs = [
 ];
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
+const streamedVisuals = [];
+const STREAM_DISTANCE = 24; // only download/retain billboard textures near the camera
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
@@ -23,6 +25,15 @@ const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 7.0 };
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
 function spriteMaterial(name, url) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseTexture = pixelTexture(url); m.opacityTexture = m.diffuseTexture; m.useAlphaFromDiffuseTexture = true; m.backFaceCulling = false; m.specularColor = BABYLON.Color3.Black(); m.emissiveColor = new BABYLON.Color3(.12, .12, .12); return m; }
+function registerStreamedVisual(mesh, url, configure) { mesh.setEnabled(false); streamedVisuals.push({ mesh, url, configure, loaded: false }); }
+function updateAssetStreaming(force = false) {
+ if (!player) return;
+ for (const item of streamedVisuals) {
+  const near = Math.abs(item.mesh.position.x - player.position.x) <= STREAM_DISTANCE;
+  if (near && !item.loaded) { item.mesh.material = spriteMaterial(`${item.mesh.name}-stream-mat`, item.url); if (item.configure) item.configure(item.mesh.material); item.mesh.setEnabled(true); item.loaded = true; }
+  else if (!near && item.loaded) { item.mesh.setEnabled(false); item.mesh.material.dispose(true, true); item.mesh.material = null; item.loaded = false; }
+ }
+}
 function box(name, x, y, z, w, h, d, mat, collision = false) { const mesh = BABYLON.MeshBuilder.CreateBox(name, { width: w, height: h, depth: d }, scene); mesh.position.set(x, y, z); mesh.material = mat; mesh.checkCollisions = collision; mesh.receiveShadows = true; return mesh; }
 
 // ---- Procedural pixel-art HD-2D textures (DynamicTexture canvases) ----
@@ -159,8 +170,11 @@ function createWalls() {
 function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foreground = false) {
  const plane = BABYLON.MeshBuilder.CreatePlane(`building-${key}-${x}`, { width, height }, scene);
  plane.position.set(x, height / 2, z); plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
- plane.material = spriteMaterial(`mat-${key}-${x}-${z}`, `assets/buildings/${key}.png`);
- plane.material.diffuseTexture.uScale = flip ? -1 : 1; if (flip) plane.material.diffuseTexture.uOffset = 1;
+ registerStreamedVisual(plane, `assets/buildings/${key}.png`, m => {
+  if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; }
+  // Facade sprites retain a small glossy lobe so camera-side spotlights produce a warm reflection.
+  m.specularColor = new BABYLON.Color3(.38, .28, .16); m.specularPower = 48;
+ });
  contactShadow(x, z + 0.1, width * .8, 1.8);
  shadowGenerator.addShadowCaster(plane);
  if (foreground) {
@@ -220,8 +234,7 @@ function createProp(key, x, z, height, opts = {}) {
  const width = height * aspect;
  const p = BABYLON.MeshBuilder.CreatePlane(`prop-${key}-${x}-${z}`, { width, height }, scene);
  p.position.set(x, height / 2 - (opts.sink || 0), z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
- p.material = spriteMaterial(`prop-${key}-${x}-${z}-mat`, `assets/props/${key}.png`);
- if (opts.flip) { p.material.diffuseTexture.uScale = -1; p.material.diffuseTexture.uOffset = 1; }
+ registerStreamedVisual(p, `assets/props/${key}.png`, m => { if (opts.flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } });
  if (!opts.noShadow) { contactShadow(x, z + height * 0.04, width * 0.7, Math.max(0.6, width * 0.32)); shadowGenerator.addShadowCaster(p); }
  if (opts.collide) { const b = box(`prop-col-${key}-${x}-${z}`, x, 0.5, z, width * 0.5, 1, 0.5, material(`prop-colmat-${x}-${z}`, '#223329'), true); b.isVisible = false; }
  if (opts.foreground) { p.fadeR = width * 0.5 + 1.0; occluders.push(p); }
@@ -258,10 +271,18 @@ function createSunsetSky() {
  const cloudTex = new BABYLON.DynamicTexture('sunset-cloud-texture', { width: 512, height: 192 }, scene, true); const cc = cloudTex.getContext(); cc.clearRect(0, 0, 512, 192);
  for (let i = 0; i < 20; i++) { const x = 10 + rnd(i + 91) * 490, y = 88 + rnd(i + 31) * 42, rx = 28 + rnd(i + 8) * 58, ry = 9 + rnd(i + 19) * 14; cc.fillStyle = i % 3 ? 'rgba(255,215,190,.68)' : 'rgba(105,94,130,.58)'; cc.beginPath(); cc.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); cc.fill(); }
  cloudTex.hasAlpha = true; cloudTex.update(); const cloudMat = new BABYLON.StandardMaterial('sunset-cloud-mat', scene); cloudMat.diffuseTexture = cloudTex; cloudMat.emissiveTexture = cloudTex; cloudMat.opacityTexture = cloudTex; cloudMat.useAlphaFromDiffuseTexture = true; cloudMat.alpha = .8; cloudMat.disableLighting = true; cloudMat.backFaceCulling = false;
- const clouds = BABYLON.MeshBuilder.CreatePlane('sunset-cloud', { width: 100, height: 20 }, scene); clouds.position.set(0, 9, -17.5); clouds.material = cloudMat; clouds.isPickable = false;
+ const clouds = BABYLON.MeshBuilder.CreatePlane('sunset-cloud', { width: 100, height: 20 }, scene); clouds.position.set(0, 7.8, -17.5); clouds.material = cloudMat; clouds.isPickable = false;
  // Stylised god-rays: additive translucent planes from the upper-left sun toward the street.
- const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .055; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
+ const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .075; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
  for (let i = 0; i < 3; i++) { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, { width: 1.8 + i, height: 18 }, scene); b.position.set(-9 + i * 3.8, 6.5, -4.8); b.rotation.z = -.32 + i * .035; b.material = beamMat; b.isPickable = false; }
+}
+
+function createFacadeSpotlights() {
+ // Three warm camera-side cones skim selected facades; restrained intensities avoid washing out pixel art.
+ for (const [i, x] of [-18, 0, 20].entries()) {
+  const facadeSpot = new BABYLON.SpotLight(`facade-spot-${i}`, new BABYLON.Vector3(x - 3, 8.5, 10), new BABYLON.Vector3(.22, -.42, -1), .72, 14, scene);
+  facadeSpot.diffuse = new BABYLON.Color3(1, .56, .25); facadeSpot.specular = new BABYLON.Color3(1, .72, .38); facadeSpot.intensity = .62; facadeSpot.range = 28;
+ }
 }
 
 function createEnvironmentEffects() {
@@ -269,7 +290,7 @@ function createEnvironmentEffects() {
  ps.particleTexture = new BABYLON.DynamicTexture('mote', { width: 16, height: 16 }, scene, false, BABYLON.Texture.NEAREST_SAMPLINGMODE);
  const pc = ps.particleTexture.getContext(); const pg = pc.createRadialGradient(8, 8, 1, 8, 8, 7); pg.addColorStop(0, 'rgba(255,245,205,1)'); pg.addColorStop(1, 'rgba(255,210,135,0)'); pc.fillStyle = pg; pc.fillRect(0, 0, 16, 16); ps.particleTexture.update();
  ps.emitter = new BABYLON.Vector3(0, 3, 0); ps.minEmitBox = new BABYLON.Vector3(-11, -2, -8); ps.maxEmitBox = new BABYLON.Vector3(11, 5, 8);
- ps.color1 = new BABYLON.Color4(1, .78, .38, .55); ps.color2 = new BABYLON.Color4(1, .93, .7, .2); ps.minSize = .025; ps.maxSize = .095; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 14; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
+ ps.color1 = new BABYLON.Color4(1, .78, .38, .72); ps.color2 = new BABYLON.Color4(1, .93, .7, .34); ps.minSize = .04; ps.maxSize = .14; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 20; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
 }
 
 function setupPostProcess() {
@@ -300,7 +321,7 @@ function createScene() {
  const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.28, -.9, -.72), scene);
  sun.position.set(-10, 18, 18); sun.intensity = 1.58; sun.diffuse = new BABYLON.Color3(1, .68, .4); sun.specular = new BABYLON.Color3(1, .5, .24);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
- createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
+ createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); updateAssetStreaming(true); createFacadeSpotlights(); createEnvironmentEffects(); setupPostProcess();
  scene.onBeforeRenderObservable.add(update);
  return scene;
 }
@@ -319,7 +340,7 @@ function update() {
   x /= length; y /= length; direction = Math.abs(x) > Math.abs(y) ? (x < 0 ? 'left' : 'right') : (y < 0 ? 'up' : 'down');
   // Babylon's left-handed camera maps world -X to screen-right, so negate X to keep controls intuitive.
   player.moveWithCollisions(new BABYLON.Vector3(-x * (MOVE_SPEED / 50) * dt, 0, y * (MOVE_SPEED / 50) * dt));
-  player.position.x = Math.max(-40, Math.min(40, player.position.x));
+  player.position.x = Math.max(-34, Math.min(34, player.position.x));
   player.position.z = Math.max(-2.0, Math.min(3.2, player.position.z));   // stay on the shallow street strip
  }
  if (player.contact) player.contact.position.set(player.position.x, 0.03, player.position.z);
@@ -329,7 +350,7 @@ function update() {
  // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
  camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
  camera.position.x = player.position.x; camera.position.z = CAM.back;
- updateZone();
+ updateAssetStreaming(); updateZone();
  // Contextual hint: only show a prompt when the player is close enough to talk (no permanent panel).
  document.querySelector('#hint').classList.toggle('show', !!nearest());
 }

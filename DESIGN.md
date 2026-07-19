@@ -114,7 +114,8 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do keep tilt-shift blur near 2.4 px so atmosphere is visible without obscuring navigation.
 - Do use Babylon.js lighting, real shadow maps, low-depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette; keep the pipeline intentionally small for iPhone performance.
 - Do render the street with a real CC0 medieval cobblestone PBR set (albedo, normal, roughness, and AO), shallow parallax occlusion, and grazing directional light so the side-on camera reads genuine stone relief. Stretch its world-Z texture scale enough to counter perspective foreshortening without making individual stones unnaturally long.
-- The village is staged at golden dusk: a blue-violet-to-amber sky gradient, layered warm/cool clouds, upper-left orange directional sunlight, restrained diagonal god-rays, and sparse drifting illuminated dust. Keep all atmospheric layers inexpensive enough for iPhone.
+- The village is staged at golden dusk: a blue-violet-to-amber sky gradient, camera-visible layered warm/cool clouds, camera-side orange directional sunlight, three restrained diagonal god-rays, three warm facade spotlights with modest specular highlights, and sparse drifting illuminated dust. Keep all atmospheric layers inexpensive enough for iPhone.
+- Stream building and prop billboard textures within 24 world units of the player; release distant materials and textures instead of retaining the entire street in GPU memory.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.

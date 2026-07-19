@@ -108,6 +108,13 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("sunset-cloud", js)
         self.assertIn("sunbeam", js)
         self.assertIn("dust-motes", js)
+        self.assertIn("createFacadeSpotlights", js)
+        self.assertIn("new BABYLON.SpotLight", js)
+        self.assertIn("facadeSpot.specular", js)
+        self.assertIn("registerStreamedVisual", js)
+        self.assertIn("updateAssetStreaming", js)
+        self.assertIn("STREAM_DISTANCE", js)
+        self.assertIn("clouds.position.set(0, 7.8, -17.5)", js)
         self.assertIn("new BABYLON.Vector3(.28, -.9, -.72)", js)
         for texture in ["medieval_cobble_color.jpg", "medieval_cobble_normal.jpg", "medieval_cobble_roughness.jpg", "medieval_cobble_ao.jpg"]:
             self.assertTrue((ROOT / f"assets/textures/{texture}").exists(), texture)
