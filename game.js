@@ -326,11 +326,11 @@ function createSunsetSky() {
  cloudTex.hasAlpha = true; cloudTex.update(); const cloudMat = new BABYLON.StandardMaterial('sunset-cloud-mat', scene); cloudMat.diffuseTexture = cloudTex; cloudMat.emissiveTexture = cloudTex; cloudMat.opacityTexture = cloudTex; cloudMat.useAlphaFromDiffuseTexture = true; cloudMat.alpha = .8; cloudMat.disableLighting = true; cloudMat.backFaceCulling = false;
  const clouds = BABYLON.MeshBuilder.CreatePlane('sunset-cloud', { width: 100, height: 20 }, scene); clouds.position.set(0, 7.8, -17.5); clouds.material = cloudMat; clouds.isPickable = false;
  // Stylised god-rays: additive translucent planes from the upper-left sun toward the street.
- const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .075; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
+ const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .19; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
  for (let i = 0; i < 3; i++) { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, { width: 1.8 + i, height: 18 }, scene); b.position.set(-9 + i * 3.8, 6.5, -4.8); b.rotation.z = -.32 + i * .035; b.material = beamMat; b.isPickable = false; }
  // Matching pools on the actual 3D street make the diagonal rays visibly land on the cobbles.
  const rayTex = new BABYLON.DynamicTexture('ground-ray-texture', { width: 128, height: 512 }, scene, true); const rc = rayTex.getContext(); const rg = rc.createLinearGradient(0, 0, 0, 512); rg.addColorStop(0, 'rgba(255,198,105,0)'); rg.addColorStop(.35, 'rgba(255,198,105,.55)'); rg.addColorStop(1, 'rgba(255,151,62,0)'); rc.fillStyle = rg; rc.fillRect(0, 0, 128, 512); rayTex.hasAlpha = true; rayTex.update();
- const rayMat = new BABYLON.StandardMaterial('ground-ray-mat', scene); rayMat.diffuseTexture = rayTex; rayMat.opacityTexture = rayTex; rayMat.emissiveTexture = rayTex; rayMat.useAlphaFromDiffuseTexture = true; rayMat.alpha = .16; rayMat.disableLighting = true; rayMat.backFaceCulling = false; rayMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
+ const rayMat = new BABYLON.StandardMaterial('ground-ray-mat', scene); rayMat.diffuseTexture = rayTex; rayMat.opacityTexture = rayTex; rayMat.emissiveTexture = rayTex; rayMat.useAlphaFromDiffuseTexture = true; rayMat.alpha = .24; rayMat.disableLighting = true; rayMat.backFaceCulling = false; rayMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
  for (let i = 0; i < 3; i++) { const r = BABYLON.MeshBuilder.CreateGround(`ground-ray-${i}`, { width: 2.2 + i * .6, height: 13 }, scene); r.position.set(-8 + i * 8, .085, 1.5); r.rotation.y = -.38; r.material = rayMat; r.isPickable = false; }
 }
 
@@ -347,7 +347,42 @@ function createEnvironmentEffects() {
  ps.particleTexture = new BABYLON.DynamicTexture('mote', { width: 16, height: 16 }, scene, false, BABYLON.Texture.NEAREST_SAMPLINGMODE);
  const pc = ps.particleTexture.getContext(); const pg = pc.createRadialGradient(8, 8, 1, 8, 8, 7); pg.addColorStop(0, 'rgba(255,245,205,1)'); pg.addColorStop(1, 'rgba(255,210,135,0)'); pc.fillStyle = pg; pc.fillRect(0, 0, 16, 16); ps.particleTexture.update();
  ps.emitter = new BABYLON.Vector3(0, 3, 0); ps.minEmitBox = new BABYLON.Vector3(-11, -2, -8); ps.maxEmitBox = new BABYLON.Vector3(11, 5, 8);
- ps.color1 = new BABYLON.Color4(1, .78, .38, .72); ps.color2 = new BABYLON.Color4(1, .93, .7, .34); ps.minSize = .04; ps.maxSize = .14; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 20; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
+ ps.color1 = new BABYLON.Color4(1, .78, .38, .82); ps.color2 = new BABYLON.Color4(1, .93, .7, .48); ps.minSize = .045; ps.maxSize = .17; ps.minLifeTime = 5; ps.maxLifeTime = 10; ps.emitRate = 34; ps.direction1 = new BABYLON.Vector3(-.06, .02, 0); ps.direction2 = new BABYLON.Vector3(.08, .08, 0); ps.minEmitPower = .05; ps.maxEmitPower = .14; ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.start();
+}
+
+function setupVolumetricLightShader() {
+ // Screen-space dusk shafts: broad animated cones from the upper-right, plus sparse glinting dust.
+ // Keeping this in one low-cost post-process avoids extra transparent geometry and remains stable while scrolling.
+ BABYLON.Effect.ShadersStore['volumetricLightFragmentShader'] = `
+  precision highp float;
+  varying vec2 vUV;
+  uniform sampler2D textureSampler;
+  uniform float time;
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+  void main(void) {
+   vec4 base = texture2D(textureSampler, vUV);
+   vec2 p = vUV;
+   float y = p.y;
+   float envelope = smoothstep(-.03,.2,y) * (1.0-smoothstep(.88,1.12,y));
+   float ray1 = exp(-pow((p.x-(.72-y*.43))/.055,2.0));
+   float ray2 = exp(-pow((p.x-(.84-y*.31))/.075,2.0));
+   float ray3 = exp(-pow((p.x-(.61-y*.24))/.038,2.0));
+   float flutter = .86 + .14*sin(time*.45 + y*19.0);
+   float shafts = (ray1*.42 + ray2*.30 + ray3*.20) * envelope * flutter;
+   vec2 grid = vec2(190.0,90.0), cell = floor(p*grid);
+   float seed = hash(cell), sparkle = 0.0;
+   if (seed > .982) {
+    vec2 centre = (cell + vec2(hash(cell+3.1),hash(cell+7.7))) / grid;
+    centre.y += mod(time*(.004+hash(cell)*.008), 1.15)-.08;
+    float d = length((p-centre)*vec2(1.0,2.15));
+    sparkle = smoothstep(.0065,.0008,d) * (.35+.65*sin(time*2.0+seed*40.0)*.5+.325);
+   }
+   vec3 warm = vec3(1.0,.68,.31);
+   gl_FragColor = vec4(base.rgb + warm*(shafts*.38 + sparkle*.24), base.a);
+  }`;
+ const lightPass = new BABYLON.PostProcess('volumetric-light', 'volumetricLight', ['time'], null, 1, camera, BABYLON.Texture.BILINEAR_SAMPLINGMODE, engine, false);
+ const started = performance.now();
+ lightPass.onApply = effect => effect.setFloat('time', (performance.now() - started) / 1000);
 }
 
 function setupPostProcess() {
@@ -380,7 +415,7 @@ function createScene() {
  const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.28, -.9, -.72), scene);
  sun.position.set(-10, 18, 18); sun.intensity = 1.58; sun.diffuse = new BABYLON.Color3(1, .68, .4); sun.specular = new BABYLON.Color3(1, .5, .24);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
- createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); updateAssetStreaming(true); createFacadeSpotlights(); createEnvironmentEffects(); setupPostProcess();
+ createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); updateAssetStreaming(true); createFacadeSpotlights(); createEnvironmentEffects(); setupPostProcess(); setupVolumetricLightShader();
  scene.onBeforeRenderObservable.add(update);
  return scene;
 }
