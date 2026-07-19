@@ -2,21 +2,23 @@
 const WORLD = { w: 20, h: 72 };
 const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
-const ZONES = [{ name:'河畔商店街', z: -24 }, { name:'花守中央廣場', z: 0 }, { name:'南風村口', z: 24 }];
+// Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
+const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
- { x: -2.2, z: 3.8, name:'莉亞',face:0, lines: ['旅行者，你好！這裡是花守村，我是照顧花圃的莉亞。', '沿著中央石板路一直走，就能抵達河畔商店街。', '三條街道都和廣場相連，所以不用擔心迷路。', '等星鈴花盛開時，我請你喝村裡最好喝的蜂蜜茶！'] },
- { x: 3, z: 25, name:'米洛',face:1, lines: ['你就是剛來的旅行者吧？我是木匠米洛。', '南邊這條寬路通往村口，兩旁都是新修好的木屋。', '沿著淺色石板走，便不會踩進居民的花圃。', '有空再來，我會替你做一雙更適合旅行的靴子。'] },
- { x: 3, z: -17, name:'莎婆婆',face:2, lines: ['呵呵，年輕人，你終於走到河畔來了。', '過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。', '溪水不能直接走過去，要從中央石橋通行。', '記住道路不只是方向，也是村民一起生活的痕跡。'] },
- { x: 3, z: -30, name:'艾妲',face:3, lines: ['歡迎來到河畔麵包坊！我是店主艾妲。', '今天烤的是蜂蜜核桃麵包，香味連橋那頭都聞得到。', '莉亞說你正在認識村子，所以這一個送給你。', '下次帶朋友一起來，我會替你們留靠窗的位置！'] },
- { x: 3, z: 21, name:'凱恩',face:4, lines: ['站住……啊，是新來的旅行者。我是巡守凱恩。', '村裡很和平，但夜裡過橋還是要留意濕滑的石階。', '若看到圍籬損壞，請告訴我或木匠米洛。', '放心探索吧，我會守著通往村外的道路。'] },
- { x: -3, z: -1.5, name:'菲菲',face:5, lines: ['你也是來看廣場噴泉的嗎？我是菲菲！', '我每天都數水花，可是每次數到二十就忘記了。', '莎婆婆說，忘記的願望會變成河邊的小花。', '所以我決定再許一個願望：希望你明天也會來！'] }
+ { x: 4, z: 1.4, name:'莉亞',face:0, lines: ['旅行者，你好！這裡是花守村，我是照顧花圃的莉亞。', '沿著中央石板路一直走，就能抵達河畔商店街。', '三條街道都和廣場相連，所以不用擔心迷路。', '等星鈴花盛開時，我請你喝村裡最好喝的蜂蜜茶！'] },
+ { x: 19, z: 0.2, name:'米洛',face:1, lines: ['你就是剛來的旅行者吧？我是木匠米洛。', '往東走這條寬路通往村口，兩旁都是新修好的木屋。', '沿著淺色石板走，便不會踩進居民的花圃。', '有空再來，我會替你做一雙更適合旅行的靴子。'] },
+ { x: -9, z: 1.4, name:'莎婆婆',face:2, lines: ['呵呵，年輕人，你終於走到河畔來了。', '過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。', '溪水不能直接走過去，要從中央石橋通行。', '記住道路不只是方向，也是村民一起生活的痕跡。'] },
+ { x: -22, z: 0.6, name:'艾妲',face:3, lines: ['歡迎來到河畔麵包坊！我是店主艾妲。', '今天烤的是蜂蜜核桃麵包，香味連橋那頭都聞得到。', '莉亞說你正在認識村子，所以這一個送給你。', '下次帶朋友一起來，我會替你們留靠窗的位置！'] },
+ { x: 14, z: 1.4, name:'凱恩',face:4, lines: ['站住……啊，是新來的旅行者。我是巡守凱恩。', '村裡很和平，但夜裡過橋還是要留意濕滑的石階。', '若看到圍籬損壞，請告訴我或木匠米洛。', '放心探索吧，我會守著通往村外的道路。'] },
+ { x: -3, z: -0.4, name:'菲菲',face:5, lines: ['你也是來看廣場噴泉的嗎？我是菲菲！', '我每天都數水花，可是每次數到二十就忘記了。', '莎婆婆說，忘記的願望會變成河邊的小花。', '所以我決定再許一個願望：希望你明天也會來！'] }
 ];
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
-const PROPS = {};   // key -> texture url resolved after assets load
+const occluders = [];   // foreground buildings that fade out when the player walks behind them
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 
-// Camera geometry: Octopath-style side-on view with a slight downward tilt.
-const CAM = { height: 13, back: 22, targetY: 2.6, view: 11.5 };
+// Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
+// view = vertical half-extent; landscape aspect widens the horizontal span automatically.
+const CAM = { height: 10.5, back: 18.5, targetY: 2.9, targetZ: -1.4, view: 7.2 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -106,71 +108,110 @@ function contactShadow(x, z, rx, rz) {
 }
 
 function createGround() {
- // Large authored grass base so no rectangular seams show.
- const grass = texturedMaterial('grass', 128, drawGrass, 20, 44, true);
- const g = BABYLON.MeshBuilder.CreateGround('ground-base', { width: 40, height: 100, subdivisions: 2 }, scene);
- g.position.z = -2; g.material = grass; g.receiveShadows = true;
+ // Large authored grass base so no rectangular seams show (X = long street axis, Z = depth).
+ const grass = texturedMaterial('grass', 128, drawGrass, 44, 20, true);
+ const g = BABYLON.MeshBuilder.CreateGround('ground-base', { width: 110, height: 44, subdivisions: 2 }, scene);
+ g.position.z = -3; g.material = grass; g.receiveShadows = true;
 
- // Central cobblestone plaza with a glowing rune circle (the district landmark).
+ // The walkable cobble street runs the whole length; a wider rune plaza marks the centre.
+ const road = texturedMaterial('road', 256, drawCobble, 16, 1.6, true);
+ box('main-road', 0, 0.05, 0.6, 84, 0.1, 6.4, road);
  const plaza = texturedMaterial('plaza', 512, drawRunePlaza, 1, 1, true);
- box('plaza', 0, 0.06, 0, 10.5, 0.12, 12, plaza).receiveShadows = true;
+ box('plaza', 0, 0.06, 0.6, 15, 0.12, 7.4, plaza).receiveShadows = true;
+ // Side lanes leading into depth at each district (visual breaks in the frontage).
+ for (const lx of [-24, 24]) box(`lane-${lx}`, lx, 0.055, -5, 4, 0.1, 8, texturedMaterial('lane' + lx, 256, drawCobble, 1.6, 3.2, true));
 
- // Stone-paved main road + district crossroads.
- const road = texturedMaterial('road', 256, drawCobble, 1.6, 15, true);
- box('main-road', 0, 0.05, 0, 3.8, 0.1, 72, road);
- box('south-crossroad', 0, 0.055, 24, 11, 0.11, 4, texturedMaterial('road2', 256, drawCobble, 4.5, 1.6, true));
- box('riverside-road', 0, 0.055, -24, 11, 0.11, 4, texturedMaterial('road3', 256, drawCobble, 4.5, 1.6, true));
-
- // River + stone bridge; invisible barriers force crossing at the bridge only.
- const water = new BABYLON.StandardMaterial('river', scene); water.diffuseTexture = makeCanvasTexture('water-tex', 128, drawWater); water.diffuseTexture.uScale = 5; water.diffuseTexture.vScale = 1; water.specularColor = new BABYLON.Color3(.3, .4, .45); water.alpha = .9;
- const w = water.diffuseTexture; scene.onBeforeRenderObservable.add(() => { w.uOffset += 0.0009; });
- box('river', 0, 0.02, -12, 20, 0.08, 4.2, water);
- const bridge = box('bridge', 0, 0.16, -12, 4, 0.3, 4.8, texturedMaterial('bridge', 128, drawWood, 1, 2));
- for (const bx of [-2.4, 2.4]) box(`bridge-rail-${bx}`, bx, 0.5, -12, 0.25, 0.7, 4.8, texturedMaterial('bridge-rail' + bx, 128, drawWood, 1, 1));
- for (const bx of [-5.9, 5.9]) { const barrier = box(`river-barrier-${bx}`, bx, 0.7, -12, 8.2, 1.4, 3.6, material('river-wall', '#245f72'), true); barrier.isVisible = false; }
+ // River as a vertical chokepoint across the street; a narrow bridge is the only crossing.
+ const water = new BABYLON.StandardMaterial('river', scene); water.diffuseTexture = makeCanvasTexture('water-tex', 128, drawWater); water.diffuseTexture.uScale = 1; water.diffuseTexture.vScale = 5; water.specularColor = new BABYLON.Color3(.3, .4, .45); water.alpha = .9;
+ const w = water.diffuseTexture; scene.onBeforeRenderObservable.add(() => { w.vOffset += 0.0009; });
+ box('river', -13, 0.02, -2, 3.2, 0.08, 22, water);
+ box('bridge', -13, 0.16, 0.9, 4.6, 0.3, 3.0, texturedMaterial('bridge', 128, drawWood, 2, 1));
+ for (const bz of [-0.5, 2.3]) box(`bridge-rail-${bz}`, -13, 0.5, bz, 4.6, 0.7, 0.25, texturedMaterial('bridge-rail' + bz, 128, drawWood, 1, 1));
+ // Invisible barriers plug the river above and below the bridge band (z -0.6..2.4), forcing the crossing.
+ for (const b of [{ z: -1.6, d: 2.0 }, { z: 3.2, d: 1.8 }]) { const barrier = box(`river-barrier-${b.z}`, -13, 0.7, b.z, 3.6, 1.4, b.d, material('river-wall', '#245f72'), true); barrier.isVisible = false; }
 }
 
 function createWalls() {
- const stone = texturedMaterial('wall', 256, drawStoneBrick, 6, 1.2, true);
+ const stone = texturedMaterial('wall', 256, drawStoneBrick, 10, 1.2, true);
  const capMat = material('wall-cap', '#7d766a');
- // Long stone retaining walls along both street edges (visible faces, side-on camera).
- for (const side of [-1, 1]) {
-  const wx = side * 6.0;
-  box(`side-wall-${side}`, wx, 0.7, 0, 0.7, 1.4, 68, stone, true);
-  box(`side-wall-cap-${side}`, wx, 1.45, 0, 0.95, 0.14, 68, capMat);
- }
- // Back retaining wall + decorative staircase landmark behind the south gate.
- box('back-wall', 0, 1.4, 35.5, 13, 2.8, 1.2, stone, true);
- box('back-wall-cap', 0, 2.85, 35.5, 13, 0.16, 1.4, capMat);
- for (let i = 0; i < 5; i++) { const y = 0.2 + i * 0.34, d = 3.4 - i * 0.5; box(`stair-${i}`, 0, y, 33.7 - i * 0.28, 4.4, 0.34, d, stone).receiveShadows = true; }
- // Low front parapet (foreground occluder that frames the shot without hiding the road).
- for (const bx of [-4.2, 4.2]) box(`front-parapet-${bx}`, bx, 0.5, 33.6, 3.4, 1.0, 0.6, stone, true);
- for (const bx of [-4.2, 4.2]) box(`front-cap-${bx}`, bx, 1.05, 33.6, 3.7, 0.14, 0.75, capMat);
+ // Tall stone retaining wall running behind the backdrop buildings (far side, upper screen).
+ box('back-wall', 0, 1.6, -8.4, 96, 3.2, 0.8, stone, true);
+ box('back-wall-cap', 0, 3.25, -8.4, 96, 0.16, 1.0, capMat);
+ // Low stone parapet along the near edge of the street (grounds the foreground, blocks falling off).
+ box('street-curb', 0, 0.28, 4.0, 96, 0.56, 0.5, stone, true);
+ box('street-curb-cap', 0, 0.57, 4.0, 96, 0.12, 0.62, capMat);
+ // End caps so the street reads as an enclosed town, not an open strip.
+ for (const ex of [-42, 42]) box(`end-wall-${ex}`, ex, 1.4, -2, 0.8, 2.8, 20, stone, true);
 }
 
-function createBuilding(key, x, z, width = 5, height = 4.6, flip = false) {
- const plane = BABYLON.MeshBuilder.CreatePlane(`building-${key}-${z}`, { width, height }, scene);
+function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foreground = false) {
+ const plane = BABYLON.MeshBuilder.CreatePlane(`building-${key}-${x}`, { width, height }, scene);
  plane.position.set(x, height / 2, z); plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  plane.material = spriteMaterial(`mat-${key}-${x}-${z}`, `assets/buildings/${key}.png`);
  plane.material.diffuseTexture.uScale = flip ? -1 : 1; if (flip) plane.material.diffuseTexture.uOffset = 1;
- const blocker = box(`wall-${key}-${z}`, x, 0.9, z, width * .62, 1.8, 0.7, material(`wallmat-${key}-${x}-${z}`, '#223329'), true); blocker.isVisible = false;
- contactShadow(x, z + 0.1, width * .8, 2.4);
+ contactShadow(x, z + 0.1, width * .8, 1.8);
  shadowGenerator.addShadowCaster(plane);
+ if (foreground) {
+  // Near-camera occluder: no collision (never blocks the path); fades out when the player is behind it.
+  plane.fadeR = width * 0.5 + 1.2; occluders.push(plane);
+ } else {
+  // Backdrop building: an invisible collision slab keeps the player on the street side of it.
+  const blocker = box(`wall-${key}-${x}`, x, 0.9, z + 0.4, width * .8, 1.8, 0.7, material(`wallmat-${key}-${x}`, '#223329'), true); blocker.isVisible = false;
+ }
  return plane;
 }
 
 function createTown() {
- // Continuous street frontage: buildings flush against the side walls, varied depth spacing.
+ // Backdrop frontage: a continuous row of buildings along the far side of the street.
  const rows = [-31,-26,-21,-16,-7,-2,3,8,15,20,25,30];
- let n = 0;
- rows.forEach((z, i) => {
-  for (const side of [-1, 1]) {
-   const key = BUILDINGS[n++ % BUILDINGS.length];
-   const w = 4.4 + (i % 3) * 0.4, h = 4.2 + (i % 4) * 0.3;
-   createBuilding(key, side * (5.0 - (i % 2) * 0.2), z, w, h, side > 0);
-  }
+ rows.forEach((x, i) => {
+  const key = BUILDINGS[i % BUILDINGS.length];
+  const w = 5.2 + (i % 3) * 0.5, h = 4.4 + (i % 4) * 0.4;
+  createBuilding(key, x, -6.0 - (i % 2) * 0.5, w, h, i % 2 === 0);
  });
- createBuilding('clocktower', -4.9, 31.5, 3.8, 6.6);
+ // A second, deeper row peeking between the front row for background density (blurred by DoF).
+ for (const x of [-27, -12, 6, 22]) createBuilding(BUILDINGS[(x + 40) % BUILDINGS.length], x, -9.2, 5.5, 5.2, x % 2 === 0);
+ createBuilding('clocktower', -18, -7.5, 4.4, 7.6);
+ // Foreground occluders: a few buildings between camera and street that fade as the player passes.
+ for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 6.4, 6.0, 5.0, x % 2 === 0, true);
+}
+
+// Which prop textures actually exist in assets/props (kept in sync with the matted output).
+const DECOR = new Set();   // populated once matted prop textures land in assets/props/
+const has = k => DECOR.has(k);
+// Vegetation and street props fill every corner so no bare grass or empty plaza remains.
+function createDecor() {
+ // Backdrop treeline fills the grass band above the buildings; midground trees add depth.
+ if (has('tree')) {
+  for (let x = -40; x <= 40; x += 7.5) createProp('tree', x + (x % 2 ? 1 : 0), -11 - (x % 3 === 0 ? 1 : 0), 8.5 + (x % 3), { noShadow: true, flip: x % 2 === 0 });
+  for (const x of [-25, -14, -1, 9, 21, 33]) createProp('tree', x, -4.7, 6.5, { flip: x % 2 === 0 });
+ }
+ // Bushes and flowerbeds along the grass strips and the near curb.
+ if (has('bushes')) {
+  for (const x of [-33, -19, -6, 3, 16, 27, 37]) createProp('bushes', x, 3.5, 1.5, { flip: x % 2 === 0 });
+  for (const x of [-28, -16, -3, 7, 18, 30]) createProp('bushes', x, -4.4, 1.7, { flip: x % 2 === 0 });
+ }
+ if (has('flowerbed')) for (const x of [-22, -8, 5, 14, 25]) createProp('flowerbed', x, -4.0, 1.3);
+ // Wrought-iron lamps rhythm the street; barrels clutter the corners.
+ if (has('lamp')) for (const x of [-30, -18, -6, 6, 18, 30]) createProp('lamp', x, 2.9, 2.6, { collide: true });
+ if (has('barrels')) for (const x of [-24, -10, 11, 23]) createProp('barrels', x, 2.6, 1.3, { collide: true, flip: x % 2 === 0 });
+ // A stone fountain anchors the central plaza (kept off the walking line, with collision).
+ if (has('fountain')) createProp('fountain', 3.2, -3.0, 2.6, { collide: true });
+}
+
+// A pixel-art prop billboard (tree, bush, lamp, fountain, crate...) grounded with a contact shadow.
+const PROP_ASPECT = { tree: 0.85, bushes: 1.5, fountain: 1.15, lamp: 0.34, flowerbed: 1.35, barrels: 1.2 };
+function createProp(key, x, z, height, opts = {}) {
+ const aspect = opts.aspect || PROP_ASPECT[key] || 1;
+ const width = height * aspect;
+ const p = BABYLON.MeshBuilder.CreatePlane(`prop-${key}-${x}-${z}`, { width, height }, scene);
+ p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
+ p.material = spriteMaterial(`prop-${key}-${x}-${z}-mat`, `assets/props/${key}.png`);
+ if (opts.flip) { p.material.diffuseTexture.uScale = -1; p.material.diffuseTexture.uOffset = 1; }
+ if (!opts.noShadow) { contactShadow(x, z + height * 0.04, width * 0.7, Math.max(0.6, width * 0.32)); shadowGenerator.addShadowCaster(p); }
+ if (opts.collide) { const b = box(`prop-col-${key}-${x}-${z}`, x, 0.5, z, width * 0.5, 1, 0.5, material(`prop-colmat-${x}-${z}`, '#223329'), true); b.isVisible = false; }
+ if (opts.foreground) { p.fadeR = width * 0.5 + 1.0; occluders.push(p); }
+ return p;
 }
 
 function createBillboard(name, url, x, z, width, height) {
@@ -181,10 +222,10 @@ function createBillboard(name, url, x, z, width, height) {
 function setSpriteFrame(mesh, column, row, columns, rows) { const t = mesh.material.diffuseTexture; t.uScale = 1 / columns; t.vScale = 1 / rows; t.uOffset = column / columns; t.vOffset = row / rows; }
 
 function loadAssets() {
- player = createBillboard('player', 'assets/hero-walk.png', 0, 7, 1.35, 1.85);
+ player = createBillboard('player', 'assets/hero-walk.png', 0, 0.8, 1.35, 1.85);
  player.ellipsoid = new BABYLON.Vector3(.32, .8, .22); player.ellipsoidOffset = new BABYLON.Vector3(0, .85, 0); player.checkCollisions = true;
  setSpriteFrame(player, 1, 0, 3, 4); shadowGenerator.addShadowCaster(player);
- player.contact = contactShadow(0, 7, 1.1, 0.9);
+ player.contact = contactShadow(0, 0.8, 1.1, 0.9);
  npcs.forEach((n, i) => {
   n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.3, 1.8);
   setSpriteFrame(n.sprite, 1, 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
@@ -218,20 +259,20 @@ function createScene() {
  scene.clearColor = new BABYLON.Color4(.55, .62, .68, 1);   // hazy warm sky behind DoF
  scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR; scene.fogColor = new BABYLON.Color3(.7, .73, .68); scene.fogStart = 55; scene.fogEnd = 95;
  scene.collisionsEnabled = true;
- camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, CAM.height, 28 + CAM.back), scene);
+ camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, CAM.height, CAM.back), scene);
  camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
- camera.setTarget(new BABYLON.Vector3(0, CAM.targetY, 28));
+ camera.setTarget(new BABYLON.Vector3(0, CAM.targetY, CAM.targetZ));
  camera.inputs.clear(); resizeCamera();
  new BABYLON.HemisphericLight('sky', new BABYLON.Vector3(-.2, 1, .1), scene).intensity = .9;
  const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(-.5, -1.05, .55), scene);
  sun.position.set(12, 18, -10); sun.intensity = 1.35; sun.diffuse = new BABYLON.Color3(1, .95, .82);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
- createGround(); createWalls(); createTown(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
+ createGround(); createWalls(); createTown(); createDecor(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
  scene.onBeforeRenderObservable.add(update);
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = engine.getRenderWidth() / engine.getRenderHeight(); const view = CAM.view; camera.orthoTop = view; camera.orthoBottom = -view; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
+function resizeCamera() { if (!camera) return; const aspect = engine.getRenderWidth() / engine.getRenderHeight(); const view = CAM.view; camera.orthoTop = view * 0.82; camera.orthoBottom = -view * 1.18; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:0,left:1,right:2,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
@@ -243,18 +284,21 @@ function update() {
  const length = Math.hypot(x, y); const dt = Math.min(engine.getDeltaTime() / 1000, .04);
  if (length > .08) {
   x /= length; y /= length; direction = Math.abs(x) > Math.abs(y) ? (x < 0 ? 'left' : 'right') : (y < 0 ? 'up' : 'down');
-  player.moveWithCollisions(new BABYLON.Vector3(x * (MOVE_SPEED / 50) * dt, 0, y * (MOVE_SPEED / 50) * dt));
-  player.position.x = Math.max(-5.4, Math.min(5.4, player.position.x));
-  player.position.z = Math.max(-34, Math.min(34, player.position.z));
+  // Babylon's left-handed camera maps world -X to screen-right, so negate X to keep controls intuitive.
+  player.moveWithCollisions(new BABYLON.Vector3(-x * (MOVE_SPEED / 50) * dt, 0, y * (MOVE_SPEED / 50) * dt));
+  player.position.x = Math.max(-40, Math.min(40, player.position.x));
+  player.position.z = Math.max(-2.0, Math.min(3.2, player.position.z));   // stay on the shallow street strip
  }
  if (player.contact) player.contact.position.set(player.position.x, 0.03, player.position.z);
  animatePlayer(length > .08, dt);
- const target = new BABYLON.Vector3(player.position.x, 0, player.position.z);
- camera.target.copyFrom(target);
- camera.position.x = target.x; camera.position.z = target.z + CAM.back;
+ // Fade foreground occluders when the player passes behind them so they never block the path.
+ for (const o of occluders) { const near = Math.abs(player.position.x - o.position.x) < o.fadeR; o.visibility += ((near ? 0.22 : 1) - o.visibility) * 0.16; }
+ // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
+ camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
+ camera.position.x = player.position.x; camera.position.z = CAM.back;
  updateZone();
 }
-function updateZone() { if (!player) return; const next = player.position.z < -12 ? 0 : player.position.z < 12 ? 1 : 2; if (next !== zoneIndex) { zoneIndex = next; document.querySelector('#location').textContent = `✦ ${ZONES[next].name}`; } }
+function updateZone() { if (!player) return; const next = player.position.x < -12 ? 0 : player.position.x < 12 ? 1 : 2; if (next !== zoneIndex) { zoneIndex = next; document.querySelector('#location').textContent = `✦ ${ZONES[next].name}`; } }
 function startTouch(e) { origin = { x: e.clientX, y: e.clientY }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active'); }
 function dragTouch(e) { if (!origin) return; const dx = e.clientX - origin.x, dy = e.clientY - origin.y, d = Math.hypot(dx, dy) || 1, k = Math.min(38, d); vector = { x: dx / d * k / 38, y: dy / d * k / 38 }; document.querySelector('#touch-knob').style.transform = `translate(${vector.x * 38}px,${vector.y * 38}px)`; }
 function stopTouch() { origin = null; vector = { x: 0, y: 0 }; document.querySelector('#touch-indicator').classList.remove('active'); document.querySelector('#touch-knob').style.transform = ''; }
