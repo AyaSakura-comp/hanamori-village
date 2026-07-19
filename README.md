@@ -13,7 +13,7 @@ python3 -m http.server 8088
 open http://localhost:8088
 ```
 
-Move by pressing anywhere on the map and dragging. Approach a villager and tap **對話** to start their story.
+Move by pressing anywhere on the map and dragging. Follow the pale cobblestone road through South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. The protagonist animates in four directions; the river can only be crossed at the central bridge. Approach a villager and tap **對話** to start their story.
 
 ## Verify
 

@@ -44,6 +44,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("hanamori-twilight.mp3", js)
         self.assertIn("hanamori-dialogue.mp3", js)
         self.assertIn("function setMusic", js)
+        self.assertIn("if(!musicStarted){setMusic(exploreTrack,.75)", js)
 
     def test_world_map_scrolls_under_the_centered_player(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
@@ -51,6 +52,9 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("const WORLD", js)
         self.assertIn("function camera", js)
         self.assertIn("function drawWorld", js)
+        self.assertIn("const ZONES", js)
+        self.assertIn("h:3600", js)
+        self.assertIn("function drawZone", js)
         self.assertIn("this.cameras.main.startFollow", js)
         self.assertIn("setCollideWorldBounds", js)
         self.assertIn("house", js)
@@ -74,6 +78,12 @@ class VillageAppContract(unittest.TestCase):
 
         self.assertIn("const MOVE_SPEED=280", js)
         self.assertIn("const CHARACTER_SCALE=1.75", js)
+        self.assertIn("hero-walk.png", js)
+        self.assertIn("walk-down", js)
+        self.assertIn("walk-up", js)
+        self.assertIn("walk-left", js)
+        self.assertIn("walk-right", js)
+        self.assertIn("player.anims.play", js)
         self.assertIn("player.setVelocity", js)
 
     def test_game_uses_local_phaser_engine_with_camera_and_arcade_physics(self):
@@ -87,9 +97,9 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("this.physics.add.collider", js)
         self.assertIn("pixelArt:true", js)
         self.assertIn("function preload", js)
-        self.assertIn("village-hd2d.png", js)
+        self.assertIn("building-${k}.png", js)
+        self.assertIn("'inn','home','flower','bakery'", js)
         self.assertIn("s.add.image", js)
-        self.assertIn("hero-sprite.png", js)
         self.assertIn("npc-sprite-2.png", js)
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):

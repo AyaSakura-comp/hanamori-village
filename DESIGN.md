@@ -51,7 +51,7 @@ components:
 
 ## Overview
 
-Hanamori Village combines a cheerful farming-life village with visual-novel character presentation. The map uses an HD-2D diorama language: dense cobblestone paths, timber buildings, water, layered foliage, warm sunlight, and shallow depth of field. Exploration must feel immediate under one thumb; conversations should feel warm, personal, and more detailed than the map sprites.
+Hanamori Village combines a cheerful farming-life village with visual-novel character presentation. The explorable world uses crisp 32-bit pixel art with generated timber-building sprites and three intentionally planned districts. Broad pale cobblestone roads, intersections, a central fountain plaza, and a single river bridge make the valid route immediately legible. Exploration must feel immediate under one thumb; conversations should feel warm, personal, and more detailed than the map sprites.
 
 ## Colors
 
@@ -86,7 +86,8 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do verify every visual change at 390 × 844.
 - Do keep player movement responsive at 280 world pixels per second.
 - Do use Phaser camera following, Arcade Physics, and integer rendering.
-- Do preserve the detailed HD-2D village background and transparent chibi pixel sprites.
+- Do preserve the three-district road plan, generated building sprites, and transparent chibi pixel sprites.
+- Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep exploration BGM warm and pastoral, and dialogue BGM quieter than exploration.
 - Do update this document whenever tokens or visual behavior change.
 - Don't place opaque backgrounds behind character CGs.
