@@ -92,6 +92,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do validate density from both left and right corners of all three districts at camera zoom 0.7.
 - Do preserve the cinematic focus hierarchy: sharp playable middle band, softly blurred top/bottom depth planes, warm upper-left sunlight, cool green shadows, contact occlusion, subtle additive lantern glow, saturation/contrast grade, and edge vignette.
 - Do keep tilt-shift blur near 2.4 px so atmosphere is visible without obscuring navigation.
+- Do use Phaser 4 GPU filters for the camera vignette and protagonist directional shadow; keep the shader stack intentionally small for iPhone performance.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.
