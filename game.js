@@ -128,7 +128,7 @@ function createGround() {
  // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
  const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 150, subdivisions: 6 }, scene);
  // Fewer V repeats stretch stones along world Z to counter the side camera's foreshortening.
- g.position.z = 63; g.material = groundMaterial('ground', 200, 34); g.receiveShadows = true;
+ g.position.z = 63; g.material = groundMaterial('ground', 200, 24); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -295,8 +295,10 @@ function createScene() {
  camera.setTarget(new BABYLON.Vector3(0, CAM.targetY, CAM.targetZ));
  camera.inputs.clear(); resizeCamera();
  const skyLight = new BABYLON.HemisphericLight('sky', new BABYLON.Vector3(-.2, 1, .1), scene); skyLight.intensity = .72; skyLight.diffuse = new BABYLON.Color3(.72, .68, .8); skyLight.groundColor = new BABYLON.Color3(.22, .2, .3);
- const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.62, -1.05, .42), scene);
- sun.position.set(-18, 20, -8); sun.intensity = 1.65; sun.diffuse = new BABYLON.Color3(1, .63, .32); sun.specular = new BABYLON.Color3(1, .48, .2);
+ // Camera-side key light (順光): warm rays travel from over the viewer into the town, lighting
+ // billboard fronts and throwing shadows away toward the back street instead of silhouetting faces.
+ const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(.28, -.9, -.72), scene);
+ sun.position.set(-10, 18, 18); sun.intensity = 1.58; sun.diffuse = new BABYLON.Color3(1, .68, .4); sun.specular = new BABYLON.Color3(1, .5, .24);
  shadowGenerator = new BABYLON.ShadowGenerator(1024, sun); shadowGenerator.useBlurExponentialShadowMap = true; shadowGenerator.blurKernel = 16; shadowGenerator.darkness = .35;
  createSunsetSky(); createGround(); createWalls(); createTown(); createDecor(); loadAssets(); createEnvironmentEffects(); setupPostProcess();
  scene.onBeforeRenderObservable.add(update);
