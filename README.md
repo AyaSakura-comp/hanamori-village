@@ -1,6 +1,6 @@
 # Hanamori Village
 
-Mobile-first pixel-art narrative village built with Phaser 4.2.1.
+Mobile-first HD-2D fantasy-town narrative game built with Phaser 4.2.1.
 
 ## Play
 
@@ -13,7 +13,7 @@ python3 -m http.server 8088
 open http://localhost:8088
 ```
 
-Move by pressing anywhere on the map and dragging. Follow the pale cobblestone road through South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. The protagonist animates in four directions; the river can only be crossed at the central bridge. Approach a villager and tap **對話** to start their story.
+Move by pressing anywhere on the map and dragging. Follow the detailed cobblestone streets through South Wind Gate, Hanamori Central Square, and Riverside Shopping Street. Explore eleven distinct fantasy landmarks—including a guild, magic shop, alchemist, smithy, tavern, chapel, clocktower, and market—layered with cinematic shadows, foreground depth, warm haze, and reflective river details. The protagonist animates in four directions; the river can only be crossed at the central bridge. Approach a villager and tap **對話** to start their story.
 
 ## Verify
 

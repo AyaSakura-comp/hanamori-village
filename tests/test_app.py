@@ -86,10 +86,16 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("this.physics.add.collider", js)
         self.assertIn("pixelArt:true", js)
         self.assertIn("function preload", js)
-        self.assertIn("building-${k}.png", js)
-        self.assertIn("'inn','home','flower','bakery'", js)
+        self.assertIn("assets/buildings/${k}.png", js)
+        self.assertIn("'guild','magic','alchemy','smithy','tavern'", js)
         self.assertIn("s.add.image", js)
         self.assertIn("npc-idle-${i}.png", js)
+        self.assertIn("drawHd2dAtmosphere", js)
+        self.assertIn("createForegroundLayer", js)
+        fantasy_buildings = ["guild", "magic", "alchemy", "smithy", "tavern", "bakery", "flower", "chapel", "home", "clocktower", "market"]
+        for key in fantasy_buildings:
+            self.assertTrue((ROOT / f"assets/buildings/{key}.png").exists(), key)
+            self.assertIn(f"'{key}'", js)
         self.assertIn("idle-${i}", js)
         self.assertTrue((ROOT / "assets/village-cg-5.png").exists())
         self.assertIn("name:'艾妲'", js)

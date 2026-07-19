@@ -51,7 +51,7 @@ components:
 
 ## Overview
 
-Hanamori Village combines a cheerful farming-life village with visual-novel character presentation. The explorable world uses crisp 32-bit pixel art with generated timber-building sprites and three intentionally planned districts. Broad pale cobblestone roads, intersections, a central fountain plaza, and a single river bridge make the valid route immediately legible. Exploration must feel immediate under one thumb; conversations should feel warm, personal, and more detailed than the map sprites.
+Hanamori Village combines a warm European fantasy town, cinematic HD-2D depth, and visual-novel character presentation. The explorable world uses crisp pixel characters against richly detailed generated timber-and-stone buildings, layered shadows, atmospheric light shafts, foreground silhouettes, reflective water, and three intentionally planned districts. Broad pale cobblestone roads, intersections, a central fountain plaza, and a single river bridge make the valid route immediately legible. Exploration must feel immediate under one thumb; conversations should feel warm, personal, and more detailed than the map sprites.
 
 ## Colors
 
@@ -85,7 +85,9 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do verify every visual change at 390 × 844.
 - Do keep player movement responsive at 280 world pixels per second.
 - Do use Phaser camera following, Arcade Physics, and integer rendering.
-- Do preserve the three-district road plan, generated building sprites, and transparent chibi pixel sprites.
+- Do preserve the three-district road plan, eleven distinct HD-2D fantasy building types, layered foreground atmosphere, and transparent chibi pixel sprites.
+- Do keep the guild, magic shop, alchemist, smithy, tavern, bakery, flower shop, chapel, home, clocktower, and market visually distinct.
+- Do keep roads high contrast and unobstructed even when adding atmospheric effects or large buildings.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.
