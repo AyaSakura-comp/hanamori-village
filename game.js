@@ -2,6 +2,7 @@
 const WORLD = { w: 20, h: 72 };
 const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
+const LANDSCAPE_RENDER = { width: 844, height: 390 };
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
@@ -15,8 +16,11 @@ const npcs = [
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
 const streamedVisuals = [];
-const STREAM_DISTANCE = 24; // only download/retain billboard textures near the camera
+const STREAM_DISTANCE = 24; // preload textures just beyond the frame
+const RENDER_DISTANCE = 18; // tighter camera budget: loaded objects outside this band do not render
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
+let debugEnabled = false, debugYaw = 0, debugGesture = null;
+const debugPointers = new Map();
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
@@ -32,6 +36,7 @@ function updateAssetStreaming(force = false) {
   const near = Math.abs(item.mesh.position.x - player.position.x) <= STREAM_DISTANCE;
   if (near && !item.loaded) { item.mesh.material = spriteMaterial(`${item.mesh.name}-stream-mat`, item.url); if (item.configure) item.configure(item.mesh.material); item.mesh.setEnabled(true); item.loaded = true; }
   else if (!near && item.loaded) { item.mesh.setEnabled(false); item.mesh.material.dispose(true, true); item.mesh.material = null; item.loaded = false; }
+  if (item.loaded) item.mesh.isVisible = Math.abs(item.mesh.position.x - camera.position.x) <= RENDER_DISTANCE;
  }
 }
 function box(name, x, y, z, w, h, d, mat, collision = false) { const mesh = BABYLON.MeshBuilder.CreateBox(name, { width: w, height: h, depth: d }, scene); mesh.position.set(x, y, z); mesh.material = mat; mesh.checkCollisions = collision; mesh.receiveShadows = true; return mesh; }
@@ -201,7 +206,7 @@ function createTown() {
  backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
  // Foreground occluders: a few buildings between camera and street that fade as the player passes.
- for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 8.2, 6.0, 5.0, x % 2 === 0, true);
+ for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 10.8, 6.0, 5.0, x % 2 === 0, true);
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).
@@ -275,6 +280,10 @@ function createSunsetSky() {
  // Stylised god-rays: additive translucent planes from the upper-left sun toward the street.
  const beamMat = new BABYLON.StandardMaterial('sunbeam-mat', scene); beamMat.diffuseColor = new BABYLON.Color3(1, .67, .32); beamMat.emissiveColor = new BABYLON.Color3(.8, .38, .1); beamMat.alpha = .075; beamMat.disableLighting = true; beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
  for (let i = 0; i < 3; i++) { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, { width: 1.8 + i, height: 18 }, scene); b.position.set(-9 + i * 3.8, 6.5, -4.8); b.rotation.z = -.32 + i * .035; b.material = beamMat; b.isPickable = false; }
+ // Matching pools on the actual 3D street make the diagonal rays visibly land on the cobbles.
+ const rayTex = new BABYLON.DynamicTexture('ground-ray-texture', { width: 128, height: 512 }, scene, true); const rc = rayTex.getContext(); const rg = rc.createLinearGradient(0, 0, 0, 512); rg.addColorStop(0, 'rgba(255,198,105,0)'); rg.addColorStop(.35, 'rgba(255,198,105,.55)'); rg.addColorStop(1, 'rgba(255,151,62,0)'); rc.fillStyle = rg; rc.fillRect(0, 0, 128, 512); rayTex.hasAlpha = true; rayTex.update();
+ const rayMat = new BABYLON.StandardMaterial('ground-ray-mat', scene); rayMat.diffuseTexture = rayTex; rayMat.opacityTexture = rayTex; rayMat.emissiveTexture = rayTex; rayMat.useAlphaFromDiffuseTexture = true; rayMat.alpha = .16; rayMat.disableLighting = true; rayMat.backFaceCulling = false; rayMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
+ for (let i = 0; i < 3; i++) { const r = BABYLON.MeshBuilder.CreateGround(`ground-ray-${i}`, { width: 2.2 + i * .6, height: 13 }, scene); r.position.set(-8 + i * 8, .085, 1.5); r.rotation.y = -.38; r.material = rayMat; r.isPickable = false; }
 }
 
 function createFacadeSpotlights() {
@@ -326,7 +335,7 @@ function createScene() {
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = engine.getRenderWidth() / engine.getRenderHeight(); const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
+function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:0,left:1,right:2,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
@@ -349,15 +358,24 @@ function update() {
  for (const o of occluders) { const near = Math.abs(player.position.x - o.position.x) < o.fadeR; o.visibility += ((near ? 0.22 : 1) - o.visibility) * 0.16; }
  // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
  camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
- camera.position.x = player.position.x; camera.position.z = CAM.back;
+ camera.position.x = player.position.x + Math.sin(debugYaw) * CAM.back; camera.position.z = Math.cos(debugYaw) * CAM.back;
  updateAssetStreaming(); updateZone();
  // Contextual hint: only show a prompt when the player is close enough to talk (no permanent panel).
  document.querySelector('#hint').classList.toggle('show', !!nearest());
 }
 function updateZone() { if (!player) return; const next = player.position.x < -12 ? 0 : player.position.x < 12 ? 1 : 2; if (next !== zoneIndex) { zoneIndex = next; document.querySelector('#location').textContent = `✦ ${ZONES[next].name}`; } }
-function startTouch(e) { origin = { x: e.clientX, y: e.clientY }; touchStart = { x: e.clientX, y: e.clientY, t: performance.now() }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active'); }
-function dragTouch(e) { if (!origin) return; const dx = e.clientX - origin.x, dy = e.clientY - origin.y, d = Math.hypot(dx, dy) || 1, k = Math.min(38, d); vector = { x: dx / d * k / 38, y: dy / d * k / 38 }; document.querySelector('#touch-knob').style.transform = `translate(${vector.x * 38}px,${vector.y * 38}px)`; }
+function pointerPairAngle() { const p = [...debugPointers.values()]; return p.length < 2 ? 0 : Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x); }
+function resetDebugCamera() { debugYaw = 0; debugGesture = null; debugPointers.clear(); }
+function startTouch(e) {
+ if (debugEnabled) { debugPointers.set(e.pointerId, { x:e.clientX, y:e.clientY }); if (debugPointers.size === 2) { vector = {x:0,y:0}; origin = null; document.querySelector('#touch-indicator').classList.remove('active'); debugGesture = { angle:pointerPairAngle(), yaw:debugYaw }; } return; }
+ origin = { x: e.clientX, y: e.clientY }; touchStart = { x: e.clientX, y: e.clientY, t: performance.now() }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active');
+}
+function dragTouch(e) {
+ if (debugEnabled && debugPointers.has(e.pointerId)) { debugPointers.set(e.pointerId, {x:e.clientX,y:e.clientY}); if (debugGesture && debugPointers.size >= 2) debugYaw = debugGesture.yaw + pointerPairAngle() - debugGesture.angle; return; }
+ if (!origin) return; const dx = e.clientX - origin.x, dy = e.clientY - origin.y, d = Math.hypot(dx, dy) || 1, k = Math.min(38, d); vector = { x: dx / d * k / 38, y: dy / d * k / 38 }; document.querySelector('#touch-knob').style.transform = `translate(${vector.x * 38}px,${vector.y * 38}px)`;
+}
 function stopTouch(e) {
+ if (debugEnabled && e) { debugPointers.delete(e.pointerId); if (debugPointers.size < 2) debugGesture = null; return; }
  // A tap (barely moved, quick) near an NPC opens dialogue — the whole screen is the talk button, no UI button.
  if (touchStart && e && e.type === 'pointerup' && !talking) {
   const moved = Math.hypot(e.clientX - touchStart.x, e.clientY - touchStart.y);
@@ -375,11 +393,14 @@ function bindDom() {
  canvas.addEventListener('pointerdown', startTouch); canvas.addEventListener('pointermove', dragTouch); canvas.addEventListener('pointerup', stopTouch); canvas.addEventListener('pointercancel', stopTouch);
  // Tapping the story overlay advances the conversation (again, no button — the screen is the control).
  document.querySelector('#story').addEventListener('pointerdown', e => { e.stopPropagation(); advanceStory(); });
+ const debugToggle = document.querySelector('#debug-toggle'), cameraReset = document.querySelector('#camera-reset');
+ debugToggle.addEventListener('pointerdown', e => e.stopPropagation()); debugToggle.addEventListener('click', () => { debugEnabled = !debugEnabled; debugToggle.textContent = `DEBUG: ${debugEnabled ? 'ON' : 'OFF'}`; document.querySelector('#debug-tools').classList.toggle('enabled', debugEnabled); resetDebugCamera(); });
+ cameraReset.addEventListener('pointerdown', e => e.stopPropagation()); cameraReset.addEventListener('click', resetDebugCamera);
  addEventListener('keydown', e => { keys.add(e.key); if (e.key === ' ' || e.key === 'Enter') interact(); });
  addEventListener('keyup', e => keys.delete(e.key));
- addEventListener('resize', () => { engine.resize(); resizeCamera(); });
+ addEventListener('resize', () => { engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height); resizeCamera(); });
 }
 const canvas = document.querySelector('#game');
-engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, adaptToDeviceRatio: true });
-if (innerWidth < 600) engine.setHardwareScalingLevel(1.25);
+engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, adaptToDeviceRatio: false });
+engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height);
 bindDom(); createScene(); engine.runRenderLoop(() => scene.render());

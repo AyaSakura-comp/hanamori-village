@@ -33,6 +33,10 @@ class VillageAppContract(unittest.TestCase):
         self.assertNotIn('id="talk"', html)
         self.assertNotIn('id="dialogue"', html)
         self.assertIn('id="hint"', html)
+        self.assertIn('id="debug-toggle"', html)
+        self.assertIn('id="camera-reset"', html)
+        self.assertIn("debugPointers", js)
+        self.assertIn("resetDebugCamera", js)
         self.assertIn("nearest()", js)
 
     def test_world_is_true_3d_with_billboard_sprites_and_xz_movement(self):
@@ -60,7 +64,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn('id="touch-indicator"', html)
         self.assertIn("addEventListener('pointerdown'", js)
         self.assertIn("pointercancel", js)
-        self.assertIn("engine.resize()", js)
+        self.assertIn("engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height)", js)
         self.assertIn("100dvh", css)
         self.assertIn("position:fixed", css.replace(" ", ""))
         self.assertIn("inset:0", css.replace(" ", ""))
@@ -116,6 +120,11 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("STREAM_DISTANCE", js)
         self.assertIn("clouds.position.set(0, 7.8, -17.5)", js)
         self.assertIn("new BABYLON.Vector3(.28, -.9, -.72)", js)
+        self.assertIn("LANDSCAPE_RENDER = { width: 844, height: 390 }", js)
+        self.assertIn("engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height)", js)
+        self.assertIn("RENDER_DISTANCE", js)
+        self.assertIn("ground-ray", js)
+        self.assertIn("user-select:none", css.replace(" ", ""))
         for texture in ["medieval_cobble_color.jpg", "medieval_cobble_normal.jpg", "medieval_cobble_roughness.jpg", "medieval_cobble_ao.jpg"]:
             self.assertTrue((ROOT / f"assets/textures/{texture}").exists(), texture)
             self.assertIn(texture, js)
@@ -140,7 +149,7 @@ class VillageAppContract(unittest.TestCase):
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
-        self.assertIn("x, 8.2, 6.0, 5.0", js)
+        self.assertIn("x, 10.8, 6.0, 5.0", js)
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")

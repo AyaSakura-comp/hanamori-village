@@ -103,8 +103,14 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Inspect transparent assets over light and dark backgrounds; there must be no white box, coloured fringe, neighbouring character fragment, or clipped body part.
 - Confirm buildings align with roads and their invisible collision rectangles block only the occupied footprint.
 - Confirm CSS tilt-shift keeps the middle gameplay band sharp while the top and bottom are softly blurred; verify the warm/cool grade, long directional shadows, contact shadows, and additive lantern pulses do not hide paths or NPCs.
-- The scene uses real Babylon.js hemispheric/directional lighting, shadow maps, low depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette. Its golden-hour atmosphere is rendered with a camera-side warm directional sun, three low-intensity facade spotlights, a lowered camera-visible procedural cloud layer, three inexpensive diagonal additive light-ray planes, and a capped 140-particle dust system. Billboard textures are streamed only within `STREAM_DISTANCE` (24 world units) and disposed outside that radius. The street uses Poly Haven `cobblestone_floor_001` CC0 PBR maps with shallow parallax occlusion and perspective-compensated world-Z scale so grazing side light reveals stone relief. Characters, NPCs, buildings, and props are vertical billboard planes; ground, roads, river, bridge, and collisions are true 3D meshes.
+- The scene uses real Babylon.js hemispheric/directional lighting, shadow maps, low depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette. Its golden-hour atmosphere is rendered with a camera-side warm directional sun, three low-intensity facade spotlights, a lowered camera-visible procedural cloud layer, three inexpensive diagonal additive light-ray planes, and a capped 140-particle dust system. Billboard textures are streamed only within `STREAM_DISTANCE` (24 world units) and disposed outside that radius; loaded meshes beyond `RENDER_DISTANCE` (18 units) are explicitly hidden. The street uses Poly Haven `cobblestone_floor_001` CC0 PBR maps with shallow parallax occlusion and perspective-compensated world-Z scale so grazing side light reveals stone relief. Characters, NPCs, buildings, and props are vertical billboard planes; ground, roads, river, bridge, and collisions are true 3D meshes.
 - Run `node --check game.js` and `python3 -m unittest tests/test_app.py -v` before commit, then verify the deployed GitHub Pages build.
+
+## Fixed viewport and debug camera
+
+- Babylon always renders at `844 × 390` with a fixed iPhone-landscape 844:390 composition. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
+- Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
+- The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 
 ## Current gameplay
 

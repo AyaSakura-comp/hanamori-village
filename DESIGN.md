@@ -115,7 +115,11 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do use Babylon.js lighting, real shadow maps, low-depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette; keep the pipeline intentionally small for iPhone performance.
 - Do render the street with a real CC0 medieval cobblestone PBR set (albedo, normal, roughness, and AO), shallow parallax occlusion, and grazing directional light so the side-on camera reads genuine stone relief. Stretch its world-Z texture scale enough to counter perspective foreshortening without making individual stones unnaturally long.
 - The village is staged at golden dusk: a blue-violet-to-amber sky gradient, camera-visible layered warm/cool clouds, camera-side orange directional sunlight, three restrained diagonal god-rays, three warm facade spotlights with modest specular highlights, and sparse drifting illuminated dust. Keep all atmospheric layers inexpensive enough for iPhone.
-- Stream building and prop billboard textures within 24 world units of the player; release distant materials and textures instead of retaining the entire street in GPU memory.
+- Stream building and prop billboard textures within 24 world units of the player; release distant materials and textures instead of retaining the entire street in GPU memory. Loaded billboards outside an 18-unit camera budget must also stop rendering.
+- Preserve an authored `844 × 390` iPhone-landscape frame in every device orientation; portrait devices display the complete landscape composition with neutral letterboxing instead of cropping or switching to portrait framing.
+- Prevent text selection throughout gameplay. A compact top-right debug toggle may enable two-finger camera orbit and expose a reset-camera button, but normal players retain the locked authored camera.
+- Diagonal aerial rays must visibly terminate as restrained additive light pools on the real cobblestone ground.
+- Foreground house billboards sit at world Z `10.8`, low enough to read as a bottom framing layer without covering the player lane.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.

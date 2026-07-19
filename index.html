@@ -8,11 +8,12 @@
   <main id="app">
     <canvas id="game" aria-label="花守村 3D 遊戲地圖"></canvas>
     <header><span id="location">✦ 南風村口</span><small>第一天・午後</small></header>
+    <div id="debug-tools"><button id="debug-toggle" type="button">DEBUG: OFF</button><button id="camera-reset" type="button">重置相機</button></div>
     <div id="touch-indicator"><div id="touch-knob"></div></div>
     <div id="hint" aria-live="polite">點一下說話</div>
     <section id="story" aria-live="polite">
       <div class="cg-frame"><img id="story-cg" src="assets/village-cg-0.png" alt="村民全身立繪"></div>
       <div class="story-box"><b id="story-name"></b><p id="story-text"></p><span>點一下繼續　▼</span></div>
     </section>
-  </main><script src="vendor/babylon.js"></script><script src="game.js?v=3d-8"></script>
+  </main><script src="vendor/babylon.js"></script><script src="game.js?v=3d-9"></script>
 </body></html>
