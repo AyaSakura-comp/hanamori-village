@@ -69,6 +69,21 @@ The map always fills the viewport, including safe-area edges. HUD and dialogue a
 
 Map objects use Y-based depth so characters pass naturally in front of and behind scenery. Story CGs sit over a translucent map dimmer; transparent pixels must preserve environmental context.
 
+## Character settings (canonical)
+
+The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of truth** for each character's design. The map pixel sprite (`assets/npcs/npc-idle-{face}.png`, and `assets/hero-walk.png` for the player) must match its CG in hair colour/shape, outfit silhouette and palette, and key props — only detail is dropped for the chibi pixel scale, never identity. Regenerate the sprite (not the CG) whenever they diverge.
+
+| face | name | role | hair | outfit | signature props |
+|---|---|---|---|---|---|
+| 0 | 莉亞 | gardener girl | short auburn/ginger, yellow hair ribbon | cream ruffled blouse + small red neck bow, olive-green apron dress over white pinafore, black tights, brown lace-up boots | basket of pink flowers |
+| 1 | 米洛 | carpenter, young man | tousled brown | tan short-sleeve tunic, teal-blue neck scarf, brown leather work apron with tool pouches, navy baggy trousers, tall brown boots, fingerless wraps | tool pouches / crossed arms |
+| 2 | 莎婆婆 | village elder | grey, tied back | lavender shawl over a sage-green floral long dress | wooden walking cane |
+| 3 | 艾妲 | baker girl | wavy blonde, shoulder-length | white headscarf/kerchief, cream puff-sleeve blouse, burnt-orange apron dress, white socks, short brown boots | basket of bread (baguettes) |
+| 4 | 凱恩 | town guard | long black | blue tabard over light silver armour, dark cape, white greaves/boots | sword at hip |
+| 5 | 菲菲 | fountain child | light teal/blue | wide tan sun hat, cream vintage lace dress | wildflowers + small basket |
+
+The protagonist master (`assets/hero-walk.png`) stays the existing design; do not restyle it here. Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
+
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
 The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~15° downward tilt (close to the ground, not top-down) and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The orthographic half-window uses proportional `4.6`-unit bounds in both axes, so the wider view never squeezes the world horizontally. Player and NPC billboards are enlarged by the matching ~1.48× factor to retain their prior screen size while more of the environment remains visible. It remains near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
