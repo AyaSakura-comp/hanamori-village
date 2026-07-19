@@ -192,7 +192,7 @@ function createTown() {
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).
-const DECOR = new Set(['tree', 'fountain', 'flowerbed', 'barrels']);   // matted props available in assets/props/
+const DECOR = new Set(['tree', 'bushes', 'fountain', 'lamp', 'flowerbed', 'barrels']);   // matted props in assets/props/
 const has = k => DECOR.has(k);
 // Vegetation and street props fill every corner so no bare grass or empty plaza remains.
 function createDecor() {
@@ -215,7 +215,7 @@ function createDecor() {
 }
 
 // A pixel-art prop billboard (tree, bush, lamp, fountain, crate...) grounded with a contact shadow.
-const PROP_ASPECT = { tree: 1.18, bushes: 0.8, fountain: 1.29, lamp: 0.34, flowerbed: 1.21, barrels: 0.99 };
+const PROP_ASPECT = { tree: 1.18, bushes: 1.12, fountain: 1.29, lamp: 0.18, flowerbed: 1.21, barrels: 0.99 };
 function createProp(key, x, z, height, opts = {}) {
  const aspect = opts.aspect || PROP_ASPECT[key] || 1;
  const width = height * aspect;
