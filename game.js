@@ -306,8 +306,9 @@ function loadAssets() {
  player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
   n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.93, 2.67);
-  setSpriteFrame(n.sprite, 0, 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
-  n.phase = i * 0.63;   // desync each NPC's idle loop so they don't move in lockstep
+  setSpriteFrame(n.sprite, NPC_REST[i], 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
+  n.phase = i * 0.9;            // desync each NPC's sway so they don't breathe in lockstep
+  n.baseCenterY = n.sprite.position.y;   // feet-anchor reference for the breathing scale
   contactShadow(n.x, n.z, 1.4, 1.05);
  });
 }
@@ -387,10 +388,19 @@ function createScene() {
 function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = debugEnabled ? debugCamera.view : CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
-// Each NPC cycles its three idle poses (0,1,2,1) at ~3 fps, desynced by a per-NPC phase.
-// Driven by wall-clock time so the cadence is framerate-independent (the dt cap must not slow it down).
-const NPC_IDLE = [0, 1, 2, 1];
-function animateNpcs() { const t = performance.now() / 1000; for (const n of npcs) { if (!n.sprite) continue; const step = Math.floor(t * 3 + n.phase) % 4; setSpriteFrame(n.sprite, NPC_IDLE[step], 0, 3, 1); } }
+// Each NPC holds one calm resting pose; the idle motion is only a subtle breathing/cloth sway.
+const NPC_REST = [2, 1, 0, 1, 0, 0];   // per-NPC resting frame (the calmest of the three poses)
+function animateNpcs() {
+ const t = performance.now() / 1000;
+ for (const n of npcs) {
+  const s = n.sprite; if (!s) continue;
+  // gentle vertical breathing anchored at the feet + a slight width sway → clothes drift a little.
+  const sy = 1 + 0.022 * Math.sin(t * 2.1 + n.phase);
+  const sx = 1 + 0.013 * Math.sin(t * 1.6 + n.phase + 1.3);
+  s.scaling.y = sy; s.scaling.x = sx;
+  s.position.y = n.baseCenterY * sy;   // keep the feet planted while it breathes
+ }
+}
 function move(dx, dy) { vector = { x: dx, y: dy }; }
 function update() {
  if (!player || talking) return;
