@@ -84,6 +84,19 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 
 The protagonist master (`assets/hero-walk.png`) stays the existing design; do not restyle it here. Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
 
+### Idle animations
+
+Each NPC has a **distinct three-frame idle loop** (`npc-idle-{face}.png`, `288×128`, three `96×128` frames, played `0,1,2,1`) — the same character in three different actions, generated as one multi-pose sprite sheet so identity never morphs between frames. Every frame shares one scale factor and a common feet baseline. Per-character idle actions:
+
+| face | name | frame 0 | frame 1 | frame 2 |
+|---|---|---|---|---|
+| 0 | 莉亞 | stand, arms relaxed | wave hello | lift the flower basket |
+| 1 | 米洛 | stand at ease | arms crossed | hand on hip, raise a hammer |
+| 2 | 莎婆婆 | lean on cane, both hands | one hand gestures | hold cane, glance aside |
+| 3 | 艾妲 | hold the bread basket | wave cheerfully | offer a loaf forward |
+| 4 | 凱恩 | stand at attention | hand on sword hilt | arms crossed, alert |
+| 5 | 菲菲 | hold wildflowers | both arms up, cheering | hands behind back, look up |
+
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
 The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~15° downward tilt (close to the ground, not top-down) and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The orthographic half-window uses proportional `4.6`-unit bounds in both axes, so the wider view never squeezes the world horizontally. Player and NPC billboards are enlarged by the matching ~1.48× factor to retain their prior screen size while more of the environment remains visible. It remains near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
