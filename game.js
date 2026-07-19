@@ -20,6 +20,7 @@ function pixelTree(g,x,y){g.fillStyle(0x173b2d,.25).fillEllipse(x+10,y+20,82,26)
 function cobbles(g,x,y,w,h){g.fillStyle(0x655b57).fillRect(x-5,y,w+10,h);g.fillStyle(0xb8aa91).fillRect(x,y,w,h);for(let yy=y+8;yy<y+h-8;yy+=24)for(let xx=x+5+(Math.floor(yy/24)%2?16:0);xx<x+w-8;xx+=32){g.fillStyle(0x8f8475,.8).fillRoundedRect(xx,yy,26,17,4);g.fillStyle(0xd7cbb2,.9).fillRect(xx+3,yy+2,19,3);}}
 function drawHd2dAtmosphere(s){const haze=s.add.graphics().setDepth(90000);haze.fillStyle(0xffd99b,.045).fillRect(0,0,WORLD.w,WORLD.h);for(let y=120;y<WORLD.h;y+=430){haze.fillStyle(0xffedc2,.055).fillTriangle(40,y,340,y+520,80,y+520);haze.fillStyle(0xffffff,.18).fillCircle(85,y+110,3).fillCircle(120,y+160,2).fillCircle(900,y+240,3);}s.tweens.add({targets:haze,alpha:{from:.72,to:1},duration:2600,yoyo:true,repeat:-1,ease:'Sine.inOut'});}
 function createForegroundLayer(s){const g=s.add.graphics().setDepth(85000);for(let y=260;y<WORLD.h;y+=420){g.fillStyle(0x173d32,.34).fillEllipse(-18,y,170,210);g.fillStyle(0x244f3a,.3).fillEllipse(1018,y+120,190,230);}for(let y=80;y<WORLD.h;y+=140){g.fillStyle(0xc9e79a,.6).fillCircle(25,y,3).fillCircle(970,y+40,2);}}
+function createCinematicLighting(s){for(let y=240;y<WORLD.h;y+=430){for(const x of [380,620]){const aura=s.add.circle(x,y,34,0xffc86a,.075).setDepth(81000).setBlendMode(Phaser.BlendModes.ADD);s.add.circle(x,y,4,0xffe8a8,.7).setDepth(81001).setBlendMode(Phaser.BlendModes.ADD);s.tweens.add({targets:aura,alpha:{from:.045,to:.11},scale:{from:.86,to:1.08},duration:1500+(y%700),yoyo:true,repeat:-1,ease:'Sine.inOut'});}}}
 function decorateTown(s){const ground=s.add.graphics().setDepth(-700);const flowers=[0xf38aa8,0xffd36e,0xeee3ff,0xe75876];for(let y=90;y<WORLD.h;y+=150){for(const x of [55,105,340,660,895,945]){ground.fillStyle(0x315f35,.85).fillEllipse(x,y+8,42,18);for(let i=0;i<5;i++)ground.fillStyle(flowers[(i+y+x)%flowers.length],.95).fillCircle(x-15+i*7,y+(i%2)*5,4);}}for(let y=300;y<WORLD.h;y+=440){ground.fillStyle(0x6c452b).fillRoundedRect(110,y,36,27,5).fillRoundedRect(854,y+65,36,27,5);ground.lineStyle(3,0xb9844d).strokeCircle(128,y+13,11).strokeCircle(872,y+78,11);ground.fillStyle(0x9b6b3e).fillRect(330,y+45,34,24).fillRect(636,y+90,30,28);}const flags=s.add.graphics().setDepth(82000);for(let y=360;y<WORLD.h;y+=610){flags.lineStyle(3,0x49392f,.75).lineBetween(70,y,930,y+25);for(let x=100;x<920;x+=85){const colors=[0xd84f52,0xe8b94c,0x3d9d76,0x5475c5];flags.fillStyle(colors[(x+y)%4],.9).fillTriangle(x,y+2,x+24,y+3,x+12,y+31);}}}
 function drawZone(s,y,index){
  const g=s.add.graphics().setDepth(-900);g.fillStyle(index===2?0x79a957:index===1?0x6fa451:0x5f9d58).fillRect(0,y,WORLD.w,1200);
@@ -31,7 +32,7 @@ function drawZone(s,y,index){
  for(let ty=y+100;ty<y+1150;ty+=180){pixelTree(g,70,ty);pixelTree(g,930,ty+70);}
 }
 function drawWorld(s){ZONES.forEach((z,i)=>drawZone(s,z.y,i));}
-function house(s,walls,key,x,y,w=270,h=220,flip=false){const shadow=s.add.ellipse(x,y+62,w*.74,h*.2,0x182629,.27).setDepth(y-2);const image=s.add.image(x,y,key).setDisplaySize(w,h).setDepth(y).setFlipX(flip);const body=s.add.rectangle(x,y+48,w*.6,h*.32,0,0);walls.add(body);body.setVisible(false);return {image,shadow};}
+function house(s,walls,key,x,y,w=270,h=220,flip=false){s.add.ellipse(x-28,y+82,w*.86,h*.16,0x102824,.2).setDepth(y-3).setAngle(-8);const shadow=s.add.ellipse(x,y+62,w*.74,h*.2,0x182629,.34).setDepth(y-2);const image=s.add.image(x,y,key).setDisplaySize(w,h).setDepth(y).setFlipX(flip);const body=s.add.rectangle(x,y+48,w*.6,h*.32,0,0);walls.add(body);body.setVisible(false);return {image,shadow};}
 function create(){
  scene=this;this.physics.world.setBounds(0,0,WORLD.w,WORLD.h);drawWorld(this);const walls=this.physics.add.staticGroup();
  house(this,walls,'bakery',260,145);house(this,walls,'alchemy',740,150,270,220,true);
@@ -47,7 +48,7 @@ function create(){
  house(this,walls,'home',260,2860,255,205,true);house(this,walls,'bakery',740,2860,265,215);
  house(this,walls,'alchemy',260,3120,270,220,true);house(this,walls,'flower',740,3120,260,215);
  house(this,walls,'market',260,3380,285,205);house(this,walls,'clocktower',740,3370,175,270);
- decorateTown(this);drawHd2dAtmosphere(this);createForegroundLayer(this);
+ decorateTown(this);drawHd2dAtmosphere(this);createCinematicLighting(this);createForegroundLayer(this);
  const riverLeft=this.add.rectangle(205,560,410,170,0,0),riverRight=this.add.rectangle(795,560,410,170,0,0);walls.add(riverLeft);walls.add(riverRight);riverLeft.setVisible(false);riverRight.setVisible(false);
  this.anims.create({key:'walk-down',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[0,1,2]}),frameRate:8,repeat:-1});
  this.anims.create({key:'walk-left',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[3,4,5]}),frameRate:8,repeat:-1});

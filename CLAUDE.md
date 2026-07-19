@@ -102,6 +102,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Trigger all four dialogue lines and confirm the matching name, portrait, and full-body CG.
 - Inspect transparent assets over light and dark backgrounds; there must be no white box, coloured fringe, neighbouring character fragment, or clipped body part.
 - Confirm buildings align with roads and their invisible collision rectangles block only the occupied footprint.
+- Confirm CSS tilt-shift keeps the middle gameplay band sharp while the top and bottom are softly blurred; verify the vignette, warm/cool grade, long directional shadows, contact shadows, and additive lantern pulses do not hide paths or NPCs.
 - Run `node --check game.js` and `python3 -m unittest tests/test_app.py -v` before commit, then verify the deployed GitHub Pages build.
 
 ## Current gameplay

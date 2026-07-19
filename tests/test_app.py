@@ -78,6 +78,7 @@ class VillageAppContract(unittest.TestCase):
     def test_game_uses_local_phaser_engine_with_camera_and_arcade_physics(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "game.js").read_text(encoding="utf-8")
+        css = (ROOT / "style.css").read_text(encoding="utf-8")
 
         self.assertIn('vendor/phaser.min.js', html)
         self.assertIn("new Phaser.Game", js)
@@ -94,6 +95,10 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("createForegroundLayer", js)
         self.assertIn("decorateTown", js)
         self.assertIn("this.cameras.main.setZoom(.7)", js)
+        self.assertIn("createCinematicLighting", js)
+        self.assertIn("backdrop-filter:blur", css)
+        self.assertIn("radial-gradient", css)
+        self.assertIn("mix-blend-mode", css)
         self.assertGreaterEqual(js.count("house(this,walls"), 24)
         fantasy_buildings = ["guild", "magic", "alchemy", "smithy", "tavern", "bakery", "flower", "chapel", "home", "clocktower", "market"]
         for key in fantasy_buildings:
