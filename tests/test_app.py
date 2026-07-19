@@ -120,7 +120,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("STREAM_DISTANCE", js)
         self.assertIn("clouds.position.set(0, 7.8, -17.5)", js)
         self.assertIn("new BABYLON.Vector3(.28, -.9, -.72)", js)
-        self.assertIn("LANDSCAPE_RENDER = { width: 844, height: 390 }", js)
+        self.assertIn("LANDSCAPE_RENDER = { width: 2556, height: 1179 }", js)
         self.assertIn("engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height)", js)
         self.assertIn("RENDER_DISTANCE", js)
         self.assertIn("ground-ray", js)

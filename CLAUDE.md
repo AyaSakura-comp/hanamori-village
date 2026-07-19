@@ -108,7 +108,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 ## Fixed viewport and debug camera
 
-- Babylon always renders at `844 × 390` with a fixed iPhone-landscape 844:390 composition. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
+- Babylon always renders at the iPhone 14 Pro native panel resolution rotated to landscape, `2556 × 1179`, with a fixed 2556:1179 composition. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 

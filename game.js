@@ -2,7 +2,8 @@
 const WORLD = { w: 20, h: 72 };
 const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
-const LANDSCAPE_RENDER = { width: 844, height: 390 };
+// iPhone 14 Pro native panel, rotated to landscape (Apple: 2556-by-1179 pixels).
+const LANDSCAPE_RENDER = { width: 2556, height: 1179 };
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
