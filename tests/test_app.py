@@ -109,7 +109,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("function createTown", js)
         self.assertIn("BABYLON.Camera.ORTHOGRAPHIC_CAMERA", js)
         self.assertIn("view: 4.6", js)
-        self.assertIn("height: 14.5, back: 21", js)
+        self.assertIn("height: 8.0, back: 21", js)
         self.assertNotIn("WIDE_ANGLE", js)
         self.assertIn("camera.orthoLeft = -view * aspect", js)
         self.assertIn("0, 0.8, 2.0, 2.75", js)
