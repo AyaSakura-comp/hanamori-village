@@ -17,7 +17,7 @@ python3 -m http.server 8088
 - `index.html`: game shell and accessible DOM dialogue overlays.
 - `game.js`: Phaser scene, world rendering, Arcade Physics, camera, touch input, and story state.
 - `style.css`: iPhone-first fullscreen UI and visual-novel overlay.
-- `assets/`: generated pixel-art textures, portraits, and transparent character CGs.
+- `assets/`: generated pixel-art textures, portraits, transparent character CGs, and three original BGM tracks under `assets/bgm/`.
 - `vendor/phaser.min.js`: pinned Phaser 4.2.1 runtime for offline/reliable deployment.
 - `.github/workflows/ci.yml`: verifies every change and deploys `main` to GitHub Pages.
 - `tests/test_app.py`: static behavioral contracts.
@@ -37,4 +37,4 @@ python3 -m http.server 8088
 
 ## Current gameplay
 
-The player explores a 1200 × 1800 HD-2D village generated as a detailed diorama background, with a smooth following camera, collision against houses, 280 px/s touch-anywhere movement, four transparent pixel-character sprites, three NPCs, and four-line visual-novel conversations with transparent full-body CGs.
+The player explores a 1200 × 1800 HD-2D village generated as a detailed diorama background, with a smooth following camera, collision against houses, 280 px/s touch-anywhere movement, four transparent pixel-character sprites, three NPCs, and four-line visual-novel conversations with transparent full-body CGs. Original BGM selects day or twilight music by local time, switches to a quieter dialogue theme during stories, and starts only after a user gesture for iPhone compatibility.
