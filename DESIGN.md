@@ -87,6 +87,9 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do use Phaser camera following, Arcade Physics, and integer rendering.
 - Do preserve the three-district road plan, generated building sprites, and transparent chibi pixel sprites.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
+- Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
+- Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.
+- Do produce transparency with an anime-aware segmentation model such as ISNet Anime or BiRefNet, not hand-tuned color thresholds.
 - Do keep the experience silent: no BGM, audio player, or music control.
 - Do update this document whenever tokens or visual behavior change.
 - Don't place opaque backgrounds behind character CGs.

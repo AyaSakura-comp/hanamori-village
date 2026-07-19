@@ -89,7 +89,16 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("building-${k}.png", js)
         self.assertIn("'inn','home','flower','bakery'", js)
         self.assertIn("s.add.image", js)
-        self.assertIn("npc-sprite-2.png", js)
+        self.assertIn("npc-idle-${i}.png", js)
+        self.assertIn("idle-${i}", js)
+        self.assertTrue((ROOT / "assets/village-cg-5.png").exists())
+        self.assertIn("name:'艾妲'", js)
+        self.assertIn("name:'凱恩'", js)
+        self.assertIn("name:'菲菲'", js)
+        self.assertEqual(js.count(",face:"), 6)
+        for index in range(6):
+            self.assertTrue((ROOT / f"assets/npcs/npc-idle-{index}.png").exists())
+            self.assertTrue((ROOT / f"assets/village-cg-{index}.png").exists())
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")

@@ -1,10 +1,12 @@
 const WORLD={w:1000,h:3600};const MOVE_SPEED=280;const CHARACTER_SCALE=1.75;
 const ZONES=[{name:'河畔商店街',y:0},{name:'花守中央廣場',y:1200},{name:'南風村口',y:2400}];
-const portraits=new Image();portraits.src='assets/villagers.png';
 const npcs=[
  {x:390,y:1990,name:'莉亞',face:0,texture:'npc0',lines:['旅行者，你好！這裡是花守村，我是照顧花圃的莉亞。','沿著中央石板路一直走，就能抵達河畔商店街。','三條街道都和廣場相連，所以不用擔心迷路。','等星鈴花盛開時，我請你喝村裡最好喝的蜂蜜茶！']},
  {x:650,y:3040,name:'米洛',face:1,texture:'npc1',lines:['你就是剛來的旅行者吧？我是木匠米洛。','南邊這條寬路通往村口，兩旁都是新修好的木屋。','沿著淺色石板走，便不會踩進居民的花圃。','有空再來，我會替你做一雙更適合旅行的靴子。']},
- {x:650,y:930,name:'莎婆婆',face:2,texture:'npc2',lines:['呵呵，年輕人，你終於走到河畔來了。','過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。','溪水不能直接走過去，要從中央石橋通行。','記住道路不只是方向，也是村民一起生活的痕跡。']}
+ {x:650,y:930,name:'莎婆婆',face:2,texture:'npc2',lines:['呵呵，年輕人，你終於走到河畔來了。','過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。','溪水不能直接走過去，要從中央石橋通行。','記住道路不只是方向，也是村民一起生活的痕跡。']},
+ {x:650,y:250,name:'艾妲',face:3,texture:'npc3',lines:['歡迎來到河畔麵包坊！我是店主艾妲。','今天烤的是蜂蜜核桃麵包，香味連橋那頭都聞得到。','莉亞說你正在認識村子，所以這一個送給你。','下次帶朋友一起來，我會替你們留靠窗的位置！']},
+ {x:650,y:2860,name:'凱恩',face:4,texture:'npc4',lines:['站住……啊，是新來的旅行者。我是巡守凱恩。','村裡很和平，但夜裡過橋還是要留意濕滑的石階。','若看到圍籬損壞，請告訴我或木匠米洛。','放心探索吧，我會守著通往村外的道路。']},
+ {x:350,y:1740,name:'菲菲',face:5,texture:'npc5',lines:['你也是來看廣場噴泉的嗎？我是菲菲！','我每天都數水花，可是每次數到二十就忘記了。','莎婆婆說，忘記的願望會變成河邊的小花。','所以我決定再許一個願望：希望你明天也會來！']}
 ];
 let scene,player,activeNpc=null,line=0,talking=false,vector={x:0,y:0},origin=null,direction='down',zoneIndex=-1;
 function camera(){return scene?.cameras.main;}
@@ -12,7 +14,7 @@ function blocked(){return false;}
 function preload(){
  this.load.spritesheet('heroWalk','assets/hero-walk.png',{frameWidth:96,frameHeight:128});
  ['inn','home','flower','bakery'].forEach(k=>this.load.image(k,`assets/building-${k}.png`));
- this.load.image('npc0','assets/npc-sprite-0.png');this.load.image('npc1','assets/npc-sprite-1.png');this.load.image('npc2','assets/npc-sprite-2.png');
+ for(let i=0;i<6;i++)this.load.spritesheet(`npc${i}`,`assets/npcs/npc-idle-${i}.png`,{frameWidth:96,frameHeight:128});
 }
 function pixelTree(g,x,y){g.fillStyle(0x315d35).fillRect(x-30,y-50,60,54);g.fillStyle(0x477b3d).fillRect(x-22,y-62,44,58);g.fillStyle(0x73a94e).fillRect(x-12,y-68,28,34);g.fillStyle(0x6c452b).fillRect(x-6,y,12,28);}
 function cobbles(g,x,y,w,h){g.fillStyle(0xd8bd83).fillRect(x,y,w,h);g.fillStyle(0xf0d99a).fillRect(x+8,y,w-16,8);for(let yy=y+18;yy<y+h-8;yy+=32)for(let xx=x+10+(yy%64?12:0);xx<x+w-12;xx+=38){g.fillStyle(0xb79b69).fillRect(xx,yy,22,5);g.fillStyle(0xe9ce91).fillRect(xx+3,yy-7,16,5);}}
@@ -37,8 +39,9 @@ function create(){
  this.anims.create({key:'walk-left',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[3,4,5]}),frameRate:8,repeat:-1});
  this.anims.create({key:'walk-right',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[6,7,8]}),frameRate:8,repeat:-1});
  this.anims.create({key:'walk-up',frames:this.anims.generateFrameNumbers('heroWalk',{frames:[9,10,11]}),frameRate:8,repeat:-1});
+ for(let i=0;i<6;i++)this.anims.create({key:`idle-${i}`,frames:this.anims.generateFrameNumbers(`npc${i}`,{frames:[0,1,2,1]}),frameRate:3,repeat:-1});
  player=this.physics.add.sprite(500,3260,'heroWalk',1).setDisplaySize(64,86).setDepth(3260).setCollideWorldBounds(true);player.body.setSize(34,22).setOffset(31,101);this.physics.add.collider(player,walls);
- npcs.forEach(n=>{n.sprite=this.add.image(n.x,n.y,n.texture).setDisplaySize(66,98).setDepth(n.y);});
+ npcs.forEach((n,i)=>{n.sprite=this.add.sprite(n.x,n.y,n.texture).setDisplaySize(66,94).setDepth(n.y).play(`idle-${i}`);});
  this.cameras.main.setBounds(0,0,WORLD.w,WORLD.h);this.cameras.main.startFollow(player,true,.13,.13);this.cameras.main.setRoundPixels(true);
  this.input.on('pointerdown',startTouch);this.input.on('pointermove',dragTouch);this.input.on('pointerup',stopTouch);this.input.on('pointercancel',stopTouch);this.keys=this.input.keyboard.createCursorKeys();updateZone();
 }
@@ -52,10 +55,10 @@ function dragTouch(p){if(!origin||!p.isDown)return;const dx=p.x-origin.x,dy=p.y-
 function stopTouch(){origin=null;vector={x:0,y:0};document.querySelector('#touch-indicator').classList.remove('active');document.querySelector('#touch-knob').style.transform='';}
 function move(dx,dy){player?.setVelocity(dx*MOVE_SPEED,dy*MOVE_SPEED);}
 function nearest(){return npcs.find(n=>Phaser.Math.Distance.Between(n.x,n.y,player.x,player.y)<105);}
-function drawPortrait(index){if(!portraits.complete)return;const c=document.querySelector('#portrait'),p=c.getContext('2d'),w=portraits.width/3;p.clearRect(0,0,56,56);p.drawImage(portraits,w*index,0,w,portraits.height,0,0,56,56);}
+function drawPortrait(index){const c=document.querySelector('#portrait'),p=c.getContext('2d'),image=new Image();image.onload=()=>{p.clearRect(0,0,56,56);p.drawImage(image,96,0,96,96,0,0,56,56);};image.src=`assets/npcs/npc-idle-${index}.png`;}
 function interact(){const npc=nearest();if(!npc){document.querySelector('#words').textContent='沿著石板路尋找村民吧。';return;}activeNpc=npc;line=0;talking=true;player.setVelocity(0);document.querySelector('#story').className='active';document.querySelector('#story-cg').src=`assets/village-cg-${npc.face}.png`;document.querySelector('#story-name').textContent=npc.name;advanceStory();}
 function advanceStory(){if(!activeNpc)return;if(line>=activeNpc.lines.length)return endStory();document.querySelector('#story-text').textContent=activeNpc.lines[line++];}
 function endStory(){document.querySelector('#story').className='';document.querySelector('#speaker').textContent=activeNpc.name;document.querySelector('#words').textContent='這段對話已經聽完了。';drawPortrait(activeNpc.face);activeNpc=null;talking=false;}
 function bindDom(){document.querySelector('#talk').addEventListener('pointerdown',e=>{e.stopPropagation();interact();});document.querySelector('#story').addEventListener('pointerdown',e=>{e.stopPropagation();advanceStory();});addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')interact();});}
 const config={type:Phaser.AUTO,parent:'game',width:innerWidth,height:innerHeight,pixelArt:true,backgroundColor:'#79be55',physics:{default:'arcade',arcade:{debug:false}},scale:{mode:Phaser.Scale.RESIZE,width:'100%',height:'100%'},scene:{preload,create,update}};
-new Phaser.Game(config);portraits.onload=()=>drawPortrait(0);bindDom();
+new Phaser.Game(config);drawPortrait(0);bindDom();
