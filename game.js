@@ -26,6 +26,7 @@ const RENDER_DISTANCE = 18; // tighter camera budget: loaded objects outside thi
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 let debugEnabled = false, debugYaw = 0, debugGesture = null;
 const debugPointers = new Map();
+const debugCamera = { x:0, y:0, z:0, angle:15, view:4.6 };
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
@@ -385,7 +386,7 @@ function createScene() {
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
+function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = debugEnabled ? debugCamera.view : CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
@@ -410,16 +411,31 @@ function update() {
   const targetVisibility = near ? .15 : 1;
   o.visibility += (targetVisibility - o.visibility) * .18;
  }
- // Horizontal side-scroll: camera tracks the player's X only, keeping the fixed side-on tilt.
- camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
- camera.position.x = player.position.x + Math.sin(debugYaw) * CAM.back; camera.position.z = Math.cos(debugYaw) * CAM.back;
+ // Horizontal side-scroll normally; Debug Mode exposes numeric XYZ offsets, angle, view, and orbit.
+ const dc = debugEnabled ? debugCamera : { x:0, y:0, z:0, angle:15, view:CAM.view };
+ const distance = Math.max(3, CAM.back + dc.z);
+ const targetX = player.position.x + dc.x, targetY = CAM.targetY + dc.y;
+ const cameraHeight = debugEnabled ? targetY + Math.tan(dc.angle * Math.PI / 180) * distance : CAM.height;
+ camera.position.x = targetX + Math.sin(debugYaw) * distance; camera.position.y = cameraHeight; camera.position.z = Math.cos(debugYaw) * distance;
+ camera.setTarget(new BABYLON.Vector3(targetX, targetY, CAM.targetZ));
  updateAssetStreaming(); updateZone();
  // Contextual hint: only show a prompt when the player is close enough to talk (no permanent panel).
  document.querySelector('#hint').classList.toggle('show', !!nearest());
 }
 function updateZone() { if (!player) return; const next = player.position.x < -12 ? 0 : player.position.x < 12 ? 1 : 2; if (next !== zoneIndex) { zoneIndex = next; document.querySelector('#location').textContent = `✦ ${ZONES[next].name}`; } }
 function pointerPairAngle() { const p = [...debugPointers.values()]; return p.length < 2 ? 0 : Math.atan2(p[1].y - p[0].y, p[1].x - p[0].x); }
-function resetDebugCamera() { debugYaw = 0; debugGesture = null; debugPointers.clear(); }
+function syncDebugCamera() {
+ const read = (id, fallback) => { const n = Number(document.querySelector(id).value); return Number.isFinite(n) ? n : fallback; };
+ debugCamera.x = read('#debug-x', 0); debugCamera.y = read('#debug-y', 0); debugCamera.z = read('#debug-z', 0);
+ debugCamera.angle = Math.max(1, Math.min(75, read('#debug-angle', 15)));
+ debugCamera.view = Math.max(1.5, Math.min(12, read('#debug-view', 4.6)));
+ resizeCamera();
+}
+function resetDebugCamera() {
+ debugYaw = 0; debugGesture = null; debugPointers.clear(); Object.assign(debugCamera, {x:0,y:0,z:0,angle:15,view:4.6});
+ for (const [id, value] of [['#debug-x',0],['#debug-y',0],['#debug-z',0],['#debug-angle',15],['#debug-view',4.6]]) document.querySelector(id).value = value;
+ resizeCamera();
+}
 function startTouch(e) {
  if (debugEnabled) { debugPointers.set(e.pointerId, { x:e.clientX, y:e.clientY }); if (debugPointers.size === 2) { vector = {x:0,y:0}; origin = null; document.querySelector('#touch-indicator').classList.remove('active'); debugGesture = { angle:pointerPairAngle(), yaw:debugYaw }; } return; }
  origin = { x: e.clientX, y: e.clientY }; touchStart = { x: e.clientX, y: e.clientY, t: performance.now() }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active');
@@ -447,9 +463,15 @@ function bindDom() {
  canvas.addEventListener('pointerdown', startTouch); canvas.addEventListener('pointermove', dragTouch); canvas.addEventListener('pointerup', stopTouch); canvas.addEventListener('pointercancel', stopTouch);
  // Tapping the story overlay advances the conversation (again, no button — the screen is the control).
  document.querySelector('#story').addEventListener('pointerdown', e => { e.stopPropagation(); advanceStory(); });
- const debugToggle = document.querySelector('#debug-toggle'), cameraReset = document.querySelector('#camera-reset');
- debugToggle.addEventListener('pointerdown', e => e.stopPropagation()); debugToggle.addEventListener('click', () => { debugEnabled = !debugEnabled; debugToggle.textContent = `DEBUG: ${debugEnabled ? 'ON' : 'OFF'}`; document.querySelector('#debug-tools').classList.toggle('enabled', debugEnabled); resetDebugCamera(); });
- cameraReset.addEventListener('pointerdown', e => e.stopPropagation()); cameraReset.addEventListener('click', resetDebugCamera);
+ const debugToggle = document.querySelector('#debug-toggle'), cameraReset = document.querySelector('#camera-reset'), debugTools = document.querySelector('#debug-tools');
+ debugTools.addEventListener('pointerdown', e => e.stopPropagation());
+ debugToggle.addEventListener('click', () => { debugEnabled = !debugEnabled; debugToggle.textContent = `DEBUG: ${debugEnabled ? 'ON' : 'OFF'}`; debugTools.classList.toggle('enabled', debugEnabled); resetDebugCamera(); });
+ cameraReset.addEventListener('click', resetDebugCamera);
+ for (const input of document.querySelectorAll('.debug-values input')) input.addEventListener('input', syncDebugCamera);
+ for (const button of document.querySelectorAll('#camera-pad button')) button.addEventListener('click', () => {
+  const axis = button.dataset.camera, delta = Number(button.dataset.delta); debugCamera[axis] += delta;
+  document.querySelector(`#debug-${axis}`).value = debugCamera[axis]; syncDebugCamera();
+ });
  addEventListener('keydown', e => { keys.add(e.key); if (e.key === ' ' || e.key === 'Enter') interact(); });
  addEventListener('keyup', e => keys.delete(e.key));
  addEventListener('resize', () => { engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height); resizeCamera(); });

@@ -2,18 +2,34 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#182b45"><title>花守村</title><link rel="stylesheet" href="style.css?v=3d-11">
+  <meta name="theme-color" content="#182b45"><title>花守村</title><link rel="stylesheet" href="style.css?v=3d-12">
 </head>
 <body>
   <main id="app">
     <canvas id="game" aria-label="花守村 3D 遊戲地圖"></canvas>
     <header><span id="location">✦ 南風村口</span><small>第一天・午後</small></header>
-    <div id="debug-tools"><button id="debug-toggle" type="button">DEBUG: OFF</button><button id="camera-reset" type="button">重置相機</button></div>
+    <div id="debug-tools">
+      <div class="debug-bar"><button id="debug-toggle" type="button">DEBUG: OFF</button><button id="camera-reset" type="button">重置相機</button></div>
+      <div id="debug-panel">
+        <div id="camera-pad" aria-label="相機方向控制">
+          <button data-camera="y" data-delta="1">↑</button><button data-camera="z" data-delta="-1">前</button>
+          <button data-camera="x" data-delta="-1">←</button><button data-camera="x" data-delta="1">→</button>
+          <button data-camera="y" data-delta="-1">↓</button><button data-camera="z" data-delta="1">後</button>
+        </div>
+        <div class="debug-values">
+          <label>左右 X <input id="debug-x" type="number" value="0" step="0.5"></label>
+          <label>上下 Y <input id="debug-y" type="number" value="0" step="0.5"></label>
+          <label>前後 Z <input id="debug-z" type="number" value="0" step="0.5"></label>
+          <label>角度 ° <input id="debug-angle" type="number" value="15" min="1" max="75" step="1"></label>
+          <label>視野 <input id="debug-view" type="number" value="4.6" min="1.5" max="12" step="0.1"></label>
+        </div>
+      </div>
+    </div>
     <div id="touch-indicator"><div id="touch-knob"></div></div>
     <div id="hint" aria-live="polite">點一下說話</div>
     <section id="story" aria-live="polite">
       <div class="cg-frame"><img id="story-cg" src="assets/village-cg-0.png" alt="村民全身立繪"></div>
       <div class="story-box"><b id="story-name"></b><p id="story-text"></p><span>點一下繼續　▼</span></div>
     </section>
-  </main><script src="vendor/babylon.js"></script><script src="game.js?v=3d-25"></script>
+  </main><script src="vendor/babylon.js"></script><script src="game.js?v=3d-26"></script>
 </body></html>
