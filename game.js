@@ -14,7 +14,7 @@ const npcs = [
 ];
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
-let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, direction = 'down', zoneIndex = -1, walkClock = 0;
+let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
@@ -284,7 +284,7 @@ function createScene() {
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = engine.getRenderWidth() / engine.getRenderHeight(); const view = CAM.view; camera.orthoTop = view * 0.82; camera.orthoBottom = -view * 1.18; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
+function resizeCamera() { if (!camera) return; const aspect = engine.getRenderWidth() / engine.getRenderHeight(); const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:0,left:1,right:2,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
@@ -309,21 +309,29 @@ function update() {
  camera.target.copyFrom(new BABYLON.Vector3(player.position.x, CAM.targetY, CAM.targetZ));
  camera.position.x = player.position.x; camera.position.z = CAM.back;
  updateZone();
+ // Contextual hint: only show a prompt when the player is close enough to talk (no permanent panel).
+ document.querySelector('#hint').classList.toggle('show', !!nearest());
 }
 function updateZone() { if (!player) return; const next = player.position.x < -12 ? 0 : player.position.x < 12 ? 1 : 2; if (next !== zoneIndex) { zoneIndex = next; document.querySelector('#location').textContent = `✦ ${ZONES[next].name}`; } }
-function startTouch(e) { origin = { x: e.clientX, y: e.clientY }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active'); }
+function startTouch(e) { origin = { x: e.clientX, y: e.clientY }; touchStart = { x: e.clientX, y: e.clientY, t: performance.now() }; const i = document.querySelector('#touch-indicator'); i.style.left = `${e.clientX}px`; i.style.top = `${e.clientY}px`; i.classList.add('active'); }
 function dragTouch(e) { if (!origin) return; const dx = e.clientX - origin.x, dy = e.clientY - origin.y, d = Math.hypot(dx, dy) || 1, k = Math.min(38, d); vector = { x: dx / d * k / 38, y: dy / d * k / 38 }; document.querySelector('#touch-knob').style.transform = `translate(${vector.x * 38}px,${vector.y * 38}px)`; }
-function stopTouch() { origin = null; vector = { x: 0, y: 0 }; document.querySelector('#touch-indicator').classList.remove('active'); document.querySelector('#touch-knob').style.transform = ''; }
+function stopTouch(e) {
+ // A tap (barely moved, quick) near an NPC opens dialogue — the whole screen is the talk button, no UI button.
+ if (touchStart && e && e.type === 'pointerup' && !talking) {
+  const moved = Math.hypot(e.clientX - touchStart.x, e.clientY - touchStart.y);
+  if (moved < 14 && performance.now() - touchStart.t < 350) interact();
+ }
+ touchStart = null; origin = null; vector = { x: 0, y: 0 }; document.querySelector('#touch-indicator').classList.remove('active'); document.querySelector('#touch-knob').style.transform = '';
+}
 function nearest() { return npcs.find(n => Math.hypot(n.x - player.position.x, n.z - player.position.z) < 2.4); }
-function drawPortrait(index) { const c = document.querySelector('#portrait'), p = c.getContext('2d'), image = new Image(); image.onload = () => { p.clearRect(0, 0, 56, 56); p.imageSmoothingEnabled = false; p.drawImage(image, 96, 0, 96, 128, 0, 0, 56, 56); }; image.src = `assets/npcs/npc-idle-${index}.png`; }
-function interact() { const npc = nearest(); if (!npc) { document.querySelector('#words').textContent = '沿著石板路尋找村民吧。'; return; } activeNpc = npc; line = 0; talking = true; document.querySelector('#story').className = 'active'; document.querySelector('#story-cg').src = `assets/village-cg-${npc.face}.png`; document.querySelector('#story-name').textContent = npc.name; advanceStory(); }
+function interact() { const npc = nearest(); if (!npc) return; activeNpc = npc; line = 0; talking = true; document.querySelector('#hint').classList.remove('show'); document.querySelector('#story').className = 'active'; document.querySelector('#story-cg').src = `assets/village-cg-${npc.face}.png`; document.querySelector('#story-name').textContent = npc.name; advanceStory(); }
 function advanceStory() { if (!activeNpc) return; if (line >= activeNpc.lines.length) return endStory(); document.querySelector('#story-text').textContent = activeNpc.lines[line++]; }
-function endStory() { document.querySelector('#story').className = ''; document.querySelector('#speaker').textContent = activeNpc.name; document.querySelector('#words').textContent = '這段對話已經聽完了。'; drawPortrait(activeNpc.face); activeNpc = null; talking = false; }
+function endStory() { document.querySelector('#story').className = ''; activeNpc = null; talking = false; }
 const keys = new Set();
 function bindDom() {
  const canvas = document.querySelector('#game');
  canvas.addEventListener('pointerdown', startTouch); canvas.addEventListener('pointermove', dragTouch); canvas.addEventListener('pointerup', stopTouch); canvas.addEventListener('pointercancel', stopTouch);
- document.querySelector('#talk').addEventListener('pointerdown', e => { e.stopPropagation(); interact(); });
+ // Tapping the story overlay advances the conversation (again, no button — the screen is the control).
  document.querySelector('#story').addEventListener('pointerdown', e => { e.stopPropagation(); advanceStory(); });
  addEventListener('keydown', e => { keys.add(e.key); if (e.key === ' ' || e.key === 'Enter') interact(); });
  addEventListener('keyup', e => keys.delete(e.key));
@@ -332,4 +340,4 @@ function bindDom() {
 const canvas = document.querySelector('#game');
 engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, adaptToDeviceRatio: true });
 if (innerWidth < 600) engine.setHardwareScalingLevel(1.25);
-bindDom(); createScene(); engine.runRenderLoop(() => scene.render()); drawPortrait(0);
+bindDom(); createScene(); engine.runRenderLoop(() => scene.render());

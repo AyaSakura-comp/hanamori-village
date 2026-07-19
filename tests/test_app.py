@@ -11,8 +11,6 @@ class VillageAppContract(unittest.TestCase):
         css = (ROOT / "style.css").read_text(encoding="utf-8")
 
         self.assertIn('id="game"', html)
-        self.assertIn('id="dialogue"', html)
-        self.assertIn('id="talk"', html)
         self.assertIn("pointerdown", js)
         self.assertIn("keydown", js)
         self.assertIn("function move", js)
@@ -21,19 +19,21 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("image-rendering: pixelated", css)
         self.assertIn("touch-action: none", css)
 
-    def test_mobile_controls_use_a_drag_thumbstick_and_portrait_dialogue(self):
+    def test_mobile_controls_use_a_drag_thumbstick_and_tap_to_talk(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "game.js").read_text(encoding="utf-8")
         css = (ROOT / "style.css").read_text(encoding="utf-8")
 
         self.assertIn('id="touch-indicator"', html)
         self.assertIn('id="touch-knob"', html)
-        self.assertIn('id="portrait"', html)
         self.assertIn("pointermove", js)
         self.assertIn("addEventListener('pointermove'", js)
-        self.assertIn("drawPortrait", js)
         self.assertIn("#touch-indicator", css)
-        self.assertIn("#portrait", css)
+        # No permanent dialogue panel and no talk button — a tap near an NPC opens the conversation.
+        self.assertNotIn('id="talk"', html)
+        self.assertNotIn('id="dialogue"', html)
+        self.assertIn('id="hint"', html)
+        self.assertIn("nearest()", js)
 
     def test_world_is_true_3d_with_billboard_sprites_and_xz_movement(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")

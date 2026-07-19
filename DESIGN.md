@@ -71,7 +71,7 @@ Map objects use Y-based depth so characters pass naturally in front of and behin
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
-The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~25–30° side-on downward tilt and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is biased upward so the playable band clears the bottom dialogue panel. Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
+The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~25–30° side-on downward tilt and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
 
 ## What is 3D vs 2D
 
@@ -95,9 +95,9 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 
 ## Components
 
-- **Talk button:** bottom-right, thumb reachable, coral with a cream ring.
-- **Exploration dialogue:** compact translucent navy panel at the bottom.
-- **Story panel:** large bottom caption with speaker name in gold and 20px body copy.
+- **No persistent HUD:** exploration shows only the location label; there is no standing dialogue panel and no talk button. The whole screen is the control surface.
+- **Tap to talk:** a quick tap (small movement, short duration) that is not a joystick drag opens a conversation when the player is close enough to an NPC; a subtle rounded **hint** pill ("點一下說話") fades in only while within range.
+- **Story panel:** large bottom caption with speaker name in gold and 20px body copy; tapping the story overlay advances it.
 - **Character CG:** transparent PNG, full body, contained above the story panel without a white matte.
 
 ## Do's and Don'ts
