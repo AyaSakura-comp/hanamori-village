@@ -327,11 +327,20 @@ function createSunsetSky() {
  const clouds = BABYLON.MeshBuilder.CreatePlane('sunset-cloud', { width: 100, height: 20 }, scene); clouds.position.set(0, 7.8, -17.5); clouds.material = cloudMat; clouds.isPickable = false;
  // Stylised god-rays: additive translucent planes from the upper-left sun toward the street.
  BABYLON.Effect.ShadersStore['worldSunshaftVertexShader'] = `precision highp float; attribute vec3 position; attribute vec2 uv; uniform mat4 worldViewProjection; varying vec2 vUV; void main(){vUV=uv;gl_Position=worldViewProjection*vec4(position,1.0);}`;
- BABYLON.Effect.ShadersStore['worldSunshaftFragmentShader'] = `precision highp float; varying vec2 vUV; uniform float time; void main(){float edge=smoothstep(0.,.24,vUV.x)*(1.-smoothstep(.76,1.,vUV.x));float fade=smoothstep(0.,.18,vUV.y)*(1.-smoothstep(.72,1.,vUV.y));float pulse=.88+.12*sin(time*.55+vUV.y*13.);gl_FragColor=vec4(1.,.63,.24,edge*fade*pulse*.30);}`;
- const beamMat = new BABYLON.ShaderMaterial('world-sunshaft-mat', scene, {vertex:'worldSunshaft',fragment:'worldSunshaft'}, {attributes:['position','uv'],uniforms:['worldViewProjection','time'],needAlphaBlending:true});
- beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD; let beamTime = 0; beamMat.onBind = () => beamMat.setFloat('time', beamTime += engine.getDeltaTime()*.001);
- const shaftXs = [-32,-20,-7,8,22,34];
- shaftXs.forEach((x, i) => { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, { width: 3.2 + (i%3)*.65, height: 18 }, scene); b.position.set(x, 6.5, -4.8); b.rotation.z = -.34 + (i%3)*.025; b.material = beamMat; b.isPickable = false; });
+ BABYLON.Effect.ShadersStore['worldSunshaftFragmentShader'] = `precision highp float; varying vec2 vUV; uniform float time; uniform float intensity; void main(){float edge=smoothstep(0.,.24,vUV.x)*(1.-smoothstep(.76,1.,vUV.x));float fade=smoothstep(0.,.18,vUV.y)*(1.-smoothstep(.72,1.,vUV.y));float pulse=.88+.12*sin(time*.55+vUV.y*13.);gl_FragColor=vec4(1.,.63,.24,edge*fade*pulse*intensity);}`;
+ const beamMat = new BABYLON.ShaderMaterial('world-sunshaft-mat', scene, {vertex:'worldSunshaft',fragment:'worldSunshaft'}, {attributes:['position','uv'],uniforms:['worldViewProjection','time','intensity'],needAlphaBlending:true});
+ beamMat.backFaceCulling = false; beamMat.alphaMode = BABYLON.Engine.ALPHA_ADD; let beamTime = 0;
+ beamMat.onBind = mesh => { beamMat.setFloat('time', beamTime += engine.getDeltaTime()*.001); beamMat.setFloat('intensity', mesh.metadata.shaftIntensity); };
+ // Uneven authored randomness: district counts differ, widths range from narrow streaks to broad cones,
+ // and Z placement spans rear roofs, the street, and near-camera props instead of one flat backdrop row.
+ const shaftConfigs = [
+  {x:-33,z:-5.5,width:.9,height:15,angle:-.25,intensity:.20}, {x:-24,z:8.5,width:3.7,height:20,angle:-.39,intensity:.26},
+  {x:-12,z:-7,width:2.1,height:17,angle:-.31,intensity:.18}, {x:-6,z:13,width:4.8,height:22,angle:-.43,intensity:.22},
+  {x:1,z:1.5,width:1.3,height:14,angle:-.28,intensity:.24}, {x:9,z:-4,width:3.2,height:19,angle:-.36,intensity:.19},
+  {x:17,z:11,width:1.7,height:16,angle:-.22,intensity:.25}, {x:27,z:-6,width:4.1,height:21,angle:-.41,intensity:.20},
+  {x:34,z:5,width:1.1,height:13,angle:-.30,intensity:.28}
+ ];
+ shaftConfigs.forEach((s, i) => { const b = BABYLON.MeshBuilder.CreatePlane(`sunbeam-${i}`, {width:s.width,height:s.height}, scene); b.position.set(s.x, s.height*.36, s.z); b.rotation.z = s.angle; b.material = beamMat; b.metadata = {shaftIntensity:s.intensity}; b.isPickable = false; });
  // Matching pools on the actual 3D street make the diagonal rays visibly land on the cobbles.
  const rayTex = new BABYLON.DynamicTexture('ground-ray-texture', { width: 128, height: 512 }, scene, true); const rc = rayTex.getContext(); const rg = rc.createLinearGradient(0, 0, 0, 512); rg.addColorStop(0, 'rgba(255,198,105,0)'); rg.addColorStop(.35, 'rgba(255,198,105,.55)'); rg.addColorStop(1, 'rgba(255,151,62,0)'); rc.fillStyle = rg; rc.fillRect(0, 0, 128, 512); rayTex.hasAlpha = true; rayTex.update();
  const rayMat = new BABYLON.StandardMaterial('ground-ray-mat', scene); rayMat.diffuseTexture = rayTex; rayMat.opacityTexture = rayTex; rayMat.emissiveTexture = rayTex; rayMat.useAlphaFromDiffuseTexture = true; rayMat.alpha = .24; rayMat.disableLighting = true; rayMat.backFaceCulling = false; rayMat.alphaMode = BABYLON.Engine.ALPHA_ADD;
@@ -362,8 +371,9 @@ function setupPostProcess() {
  pipeline.bloomEnabled = true; pipeline.bloomThreshold = .82; pipeline.bloomWeight = .16; pipeline.bloomScale = .5;
  // Keep DoF very subtle — the CSS tilt-shift band handles most of the HD-2D blur. A strong
  // Babylon ortho DoF blurs the whole plane, so bias it toward almost-sharp.
- pipeline.depthOfFieldEnabled = false; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
- pipeline.depthOfField.focusDistance = 4200; pipeline.depthOfField.focalLength = 24; pipeline.depthOfField.fStop = 22;
+ pipeline.depthOfFieldEnabled = true; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
+ // Focus the near street/foreground and let distant roofs and skyline soften progressively.
+ pipeline.depthOfField.focusDistance = 6500; pipeline.depthOfField.focalLength = 55; pipeline.depthOfField.fStop = 7.5;
  pipeline.imageProcessingEnabled = true; pipeline.imageProcessing.contrast = 1.08; pipeline.imageProcessing.exposure = 1.12;
  pipeline.imageProcessing.vignetteEnabled = true; pipeline.imageProcessing.vignetteWeight = 1.05; pipeline.imageProcessing.vignetteColor = new BABYLON.Color4(.04, .07, .07, 1);
  pipeline.imageProcessing.toneMappingEnabled = true; pipeline.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
