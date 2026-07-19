@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#182b45"><title>花守村</title><link rel="stylesheet" href="style.css?v=3d-13">
+  <meta name="theme-color" content="#182b45"><title>花守村</title><link rel="stylesheet" href="style.css?v=3d-14">
 </head>
 <body>
   <main id="app">
@@ -28,7 +28,10 @@
     <div id="touch-indicator"><div id="touch-knob"></div></div>
     <div id="hint" aria-live="polite">點一下說話</div>
     <section id="story" aria-live="polite">
-      <div class="cg-frame"><img id="story-cg" src="assets/village-cg-0.png" alt="村民全身立繪"></div>
+      <div class="dialogue-stage">
+        <div class="portrait-frame hero-side"><img id="hero-portrait" src="assets/hero-portrait.png" alt="主角半身立繪"></div>
+        <div class="portrait-frame npc-side"><img id="story-cg" src="assets/village-cg-0.png" alt="村民半身立繪"></div>
+      </div>
       <div class="story-box"><b id="story-name"></b><p id="story-text"></p><span>點一下繼續　▼</span></div>
     </section>
   </main><script src="vendor/babylon.js"></script><script src="game.js?v=3d-34"></script>

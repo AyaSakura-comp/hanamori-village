@@ -199,13 +199,20 @@ class VillageAppContract(unittest.TestCase):
         css = (ROOT / "style.css").read_text(encoding="utf-8")
 
         self.assertIn('id="story"', html)
+        self.assertIn('id="hero-portrait"', html)
         self.assertIn('id="story-cg"', html)
+        self.assertIn('class="portrait-frame hero-side"', html)
+        self.assertIn('class="portrait-frame npc-side"', html)
+        self.assertIn('assets/hero-portrait.png', html)
         self.assertIn('id="story-text"', html)
         self.assertIn("function advanceStory", js)
         self.assertIn("endStory", js)
         self.assertIn("village-cg-0.png", html)
         self.assertIn("village-cg-${npc.face}.png", js)
         self.assertIn("#story.active", css)
+        self.assertIn(".hero-side", css)
+        self.assertIn(".npc-side", css)
+        self.assertIn("object-position:center top", css)
 
 
 if __name__ == "__main__":

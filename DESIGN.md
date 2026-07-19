@@ -134,7 +134,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - **No persistent HUD:** exploration shows only the location label; there is no standing dialogue panel and no talk button. The whole screen is the control surface.
 - **Tap to talk:** a quick tap (small movement, short duration) that is not a joystick drag opens a conversation when the player is close enough to an NPC; a subtle rounded **hint** pill ("點一下說話") fades in only while within range.
 - **Story panel:** large bottom caption with speaker name in gold and 20px body copy; tapping the story overlay advances it.
-- **Character CG:** transparent PNG, full body, contained above the story panel without a white matte.
+- **Dialogue portraits:** show only half-body compositions above the story panel: the protagonist is always anchored on the left and the active NPC on the right. Source PNGs stay transparent and may retain full-body resolution, but the UI crops them around the waist without a white matte.
 
 ## Do's and Don'ts
 

@@ -45,7 +45,7 @@ python3 -m http.server 8088
 | Asset | Generation tool/model | Background removal | Final location |
 |---|---|---|---|
 | Pixel characters and buildings | Local `create-image` pipeline with Anima Base V10 and `ElinSprite_AnimaBaseV10_byKonan.safetensors` pixel-sprite LoRA | `rembg` with `isnet-anime`; use `birefnet-general` when ISNet loses dark clothing or hair | `assets/hero-walk.png`, `assets/npcs/`, `assets/building-*.png` |
-| Full-body dialogue CG | Local `create-image --anime` pipeline (Anima Base V10 anime workflow) | BiRefNet General preferred; ISNet Anime is an acceptable comparison pass | `assets/village-cg-{face}.png` |
+| Dialogue character art | Local `create-image --anime` pipeline (Anima Base V10 anime workflow) | BiRefNet General preferred; ISNet Anime is an acceptable comparison pass | `assets/hero-portrait.png`, `assets/village-cg-{face}.png` |
 | Sprite-sheet assembly, crop, and inspection | Pillow; nearest-neighbour scaling for pixel assets | Never use RGB/white-threshold removal | final PNG listed above |
 
 Use the project machine's `create-image` skill/script rather than an online image generator. A typical generation command is:
@@ -90,7 +90,7 @@ Do not calculate transparency from white pixels, chroma distance, flood-fill col
 |---|---|---|
 | `assets/hero-walk.png` | `288 × 512`; 3 columns × 4 rows; each frame `96 × 128`; rows are down, left, right, up | Loaded as `heroWalk`; `walk-*` animations use three frames at 8 fps. Display size is `64 × 86`; Arcade body is feet-only (`34 × 22`) so roofs and walls collide naturally. |
 | `assets/npcs/npc-idle-{0..5}.png` | `288 × 128`; three `96 × 128` transparent frames from one master | Loaded as `npc0`…`npc5`; `idle-{i}` loops `0,1,2,1` at 3 fps. Displayed at `66 × 94`. The middle frame is also drawn into the 56 px dialogue portrait canvas. |
-| `assets/village-cg-{0..5}.png` | Independent transparent full-body PNG, approximately 1080 px tall; never a scaled map sprite | The NPC's numeric `face` selects the file in `interact()`. The DOM `#story-cg` layer displays it above the paused map while `#story` owns dialogue text. |
+| `assets/village-cg-{0..5}.png` | Independent transparent full-body PNG, approximately 1080 px tall; never a scaled map sprite | The NPC's numeric `face` selects the file in `interact()`. Dialogue crops it to a right-side half-body composition. `assets/hero-portrait.png` remains fixed as the left-side protagonist half-body portrait while `#story` owns dialogue text. |
 | `assets/building-{key}.png` | One transparent pixel building per file | `preload()` maps keys to images. `house()` renders at the requested size and creates a separate invisible Arcade rectangle for collision; visible pixels are not used as a collision mask. |
 
 Each entry in `npcs` couples narrative and art through `{ name, face, texture, x, y, lines }`: `texture:'npc3'` selects the map sheet, `face:3` selects both `npc-idle-3.png` for the portrait and `village-cg-3.png` for the full-body CG, and `x/y` places the world object. Keep these indices aligned. Every NPC requires exactly one idle sheet, one full-body CG, four complete dialogue lines, and a reachable non-colliding map position.
