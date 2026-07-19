@@ -1,6 +1,6 @@
 # Hanamori Village
 
-Mobile-first HD-2D fantasy-town narrative game built with Phaser 4.2.1.
+Mobile-first 3D-ground + pixel-billboard fantasy-town narrative game built with Babylon.js.
 
 ## Play
 
