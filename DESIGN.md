@@ -76,7 +76,7 @@ The world is a **landscape horizontal side-scroller**. The street runs along the
 ## What is 3D vs 2D
 
 **3D geometry (real meshes, lit, cast/receive shadows, collide):**
-- Ground: a single large paved-stone plane driven by a **real seamless texture asset** (CC0 from ambientCG) with **diffuse + normal maps** so the stone catches the directional sun as genuine relief — not a flat image. Files live in `assets/textures/` (`stone_*`), tiled with anisotropic filtering. The plane reaches far into the foreground but ends just behind the back wall, so the background above the buildings is sky + treeline, not stone riding up the screen.
+- Ground: a single large paved-stone plane extending from world Z `-18` into the deep foreground, so the surface continues behind the rear facade layer without exposing an early edge. It uses the Poly Haven CC0 cobblestone PBR maps in `assets/textures/` with anisotropic filtering, normal relief, roughness, and AO.
 - Enclosure: only off-screen end-cap walls (procedural stone-brick, `drawStoneBrick`) plus the shallow Z clamp keep the player on the street — no back wall and no foreground curb. The backdrop is a fuller second row of houses (offset to peek between the front row) that hides the ground's far edge, with a few scattered trees and open sky above; extra houses may be added anywhere that does not block the walkway or hide the characters.
 - Invisible collision slabs behind backdrop buildings and under solid props.
 
@@ -124,7 +124,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Keep FXAA and depth-of-field disabled at the native Retina render size. Pixel billboards, UI, and stone detail must remain crisp; atmosphere should come from authored light, color, and particles rather than full-frame softening.
 - Prevent text selection throughout gameplay. A compact top-right debug toggle may enable two-finger camera orbit and expose a reset-camera button, but normal players retain the locked authored camera.
 - Diagonal aerial rays must visibly terminate as restrained additive light pools on the real cobblestone ground.
-- Foreground billboards sit at world Z `18.5`, using only the bottom edge as a framing layer so the central walking lane remains unobstructed. Use a varied authored rhythm of ivy, garden, and gabled cottages, merchant wagons, and flower wells rather than repeating the backdrop building set.
+- Foreground billboards sit at world Z `17.2`, sitting slightly higher while still using only the lower frame as a framing layer so the central walking lane remains unobstructed. Use a varied authored rhythm of ivy, garden, and gabled cottages, merchant wagons, and flower wells rather than repeating the backdrop building set.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.

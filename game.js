@@ -152,9 +152,9 @@ function createGround() {
  // The floor is ONE big textured 3D plane (paved stone, diffuse + normal for real relief). It reaches
  // far into the foreground but ends just behind the back wall, so the background above the buildings is
  // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
- const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 150, subdivisions: 6 }, scene);
+ const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 164, subdivisions: 6 }, scene);
  // Fewer V repeats stretch stones along world Z to counter the side camera's foreshortening.
- g.position.z = 63; g.material = groundMaterial('ground', 200, 24); g.receiveShadows = true;
+ g.position.z = 64; g.material = groundMaterial('ground', 200, 26); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -210,9 +210,9 @@ const FOREGROUND_ASPECT = { 'ivy-cottage':1.198, 'garden-cottage':1.193, 'gable-
 function createForegroundAsset(key, x, height, flip = false) {
  const width = height * FOREGROUND_ASPECT[key];
  const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}`, { width, height }, scene);
- p.position.set(x, height / 2, 18.5); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
+ p.position.set(x, height / 2, 17.2); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  registerStreamedVisual(p, `assets/foreground/${key}.png`, m => { if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, flip ? 'flip' : 'normal');
- contactShadow(x, 18.6, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
+ contactShadow(x, 17.3, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
 }
 
 function createTown() {

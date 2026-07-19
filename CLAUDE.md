@@ -119,7 +119,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Cropped PNG dimensions are authoritative. Building billboard width is computed as `height × BUILDING_ASPECT[key]`; never stretch every facade into a generic requested width.
 - Keep `BUILDING_ASPECT` synchronized with the actual files in `assets/buildings/`. Props follow the same rule through `PROP_ASPECT`.
 - Collision footprints and contact shadows derive from the fitted width so visuals and physical space remain aligned.
-- The lower framing layer uses six dedicated generated/matted assets in `assets/foreground/`: three cottage silhouettes, two covered wagons, and a flower well. Their `FOREGROUND_ASPECT` values come from each cropped PNG, and placements alternate across eight X positions at world Z `18.5`.
+- The lower framing layer uses six dedicated generated/matted assets in `assets/foreground/`: three cottage silhouettes, two covered wagons, and a flower well. Their `FOREGROUND_ASPECT` values come from each cropped PNG, and placements alternate across eight X positions at world Z `17.2`, slightly higher than the previous bottom-edge placement while remaining clear of the player lane.
 
 ## Current gameplay
 

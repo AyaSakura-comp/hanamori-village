@@ -113,7 +113,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("pipeline.imageProcessing.vignetteEnabled", js)
         self.assertIn("new BABYLON.PBRMaterial", js)
         self.assertIn("useParallaxOcclusion", js)
-        self.assertIn("groundMaterial('ground', 200, 24)", js)
+        self.assertIn("groundMaterial('ground', 200, 26)", js)
         self.assertIn("TONEMAPPING_ACES", js)
         self.assertIn("createSunsetSky", js)
         self.assertIn("sunset-cloud", js)
@@ -160,7 +160,9 @@ class VillageAppContract(unittest.TestCase):
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
-        self.assertIn("p.position.set(x, height / 2, 18.5)", js)
+        self.assertIn("p.position.set(x, height / 2, 17.2)", js)
+        self.assertIn("height: 164", js)
+        self.assertIn("g.position.z = 64", js)
         self.assertIn("'merchant-wagon'", js)
         self.assertIn("'flower-well'", js)
 
