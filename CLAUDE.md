@@ -2,14 +2,14 @@
 
 ## Project
 
-Hanamori Village is a mobile-first pixel-art narrative game built with Phaser 4.2.1 and served as a static site through nginx in Docker.
+Hanamori Village is a mobile-first pixel-art narrative game built with Phaser 4.2.1 and deployed as a static site through GitHub Pages.
 
 ## Commands
 
 ```bash
 python3 -m unittest tests/test_app.py -v
 node --check game.js
-docker compose up -d --build
+python3 -m http.server 8088
 ```
 
 ## Architecture
@@ -19,6 +19,7 @@ docker compose up -d --build
 - `style.css`: iPhone-first fullscreen UI and visual-novel overlay.
 - `assets/`: generated pixel-art textures, portraits, and transparent character CGs.
 - `vendor/phaser.min.js`: pinned Phaser 4.2.1 runtime for offline/reliable deployment.
+- `.github/workflows/ci.yml`: verifies every change and deploys `main` to GitHub Pages.
 - `tests/test_app.py`: static behavioral contracts.
 
 ## Rules

@@ -1,7 +1,18 @@
-name: verify
+name: verify-and-deploy
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   contracts:
     runs-on: ubuntu-latest
@@ -17,3 +28,20 @@ jobs:
       - run: python3 -m unittest tests/test_app.py -v
       - name: Require living agent and design docs
         run: test -s CLAUDE.md && test -s DESIGN.md
+      - name: Upload static site
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: contracts
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

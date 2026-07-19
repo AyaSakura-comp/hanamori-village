@@ -2,10 +2,14 @@
 
 Mobile-first pixel-art narrative village built with Phaser 4.2.1.
 
-## Play locally
+## Play
+
+GitHub Pages: <https://ayasakura-comp.github.io/hanamori-village/>
+
+For local preview:
 
 ```bash
-docker compose up -d --build
+python3 -m http.server 8088
 open http://localhost:8088
 ```
 
@@ -22,4 +26,4 @@ python3 -m unittest tests/test_app.py -v
 
 - Update `CLAUDE.md` when architecture, commands, or engineering conventions change.
 - Update `DESIGN.md` when visual tokens, art direction, controls, layout, or dialogue presentation change.
-- CI runs the game contracts on every push.
+- CI runs the game contracts and deploys the static site to GitHub Pages on every push to `main`.
