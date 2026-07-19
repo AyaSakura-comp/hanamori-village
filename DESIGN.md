@@ -86,16 +86,18 @@ The protagonist master (`assets/hero-walk.png`) stays the existing design; do no
 
 ### Idle animations
 
-Each NPC has a **distinct three-frame idle loop** (`npc-idle-{face}.png`, `288×128`, three `96×128` frames, played `0,1,2,1`) — the same character in three different actions, generated as one multi-pose sprite sheet so identity never morphs between frames. Every frame shares one scale factor and a common feet baseline. Per-character idle actions:
+Each NPC **holds one calm resting pose** — the idle motion is deliberately small: a gentle breathing/cloth sway, not pose-swapping. The sprite sheet (`npc-idle-{face}.png`, `288×128`, three `96×128` frames) is still authored as one multi-pose sheet (generated in a single pass so identity never morphs, every frame sharing one scale factor and a common feet baseline), but at runtime only the character's resting frame (`NPC_REST`) is shown. The other two poses remain in the sheet as a reserve for future richer idles.
 
-| face | name | frame 0 | frame 1 | frame 2 |
-|---|---|---|---|---|
-| 0 | 莉亞 | stand, arms relaxed | wave hello | lift the flower basket |
-| 1 | 米洛 | stand at ease | arms crossed | hand on hip, raise a hammer |
-| 2 | 莎婆婆 | lean on cane, both hands | one hand gestures | hold cane, glance aside |
-| 3 | 艾妲 | hold the bread basket | wave cheerfully | offer a loaf forward |
-| 4 | 凱恩 | stand at attention | hand on sword hilt | arms crossed, alert |
-| 5 | 菲菲 | hold wildflowers | both arms up, cheering | hands behind back, look up |
+The sway is procedural, per `animateNpcs()`: a feet-anchored vertical stretch (~2%) plus a slight width oscillation (~1.3%), each NPC desynced by a phase and driven by wall-clock time so the cadence is framerate-independent. Feet stay planted (position compensates the vertical scale). Keep it subtle.
+
+| face | name | resting pose (`NPC_REST`) | (reserve poses in sheet) |
+|---|---|---|---|
+| 0 | 莉亞 | frame 2 — hold the flower basket | stand, wave |
+| 1 | 米洛 | frame 1 — arms crossed | hand out, hand on hip + hammer |
+| 2 | 莎婆婆 | frame 0 — lean on the cane | gesture, glance aside |
+| 3 | 艾妲 | frame 1 — hold the bread basket | wave, offer a loaf |
+| 4 | 凱恩 | frame 0 — stand at attention | hand on sword, arms crossed |
+| 5 | 菲菲 | frame 0 — hold wildflowers | cheer arms up, hands behind back |
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
