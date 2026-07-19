@@ -25,7 +25,7 @@ const debugPointers = new Map();
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 7.0 };
+const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 6.2 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }

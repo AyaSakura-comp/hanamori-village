@@ -71,7 +71,7 @@ Map objects use Y-based depth so characters pass naturally in front of and behin
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
-The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed shallow ~15° side-on tilt (close to the ground, not top-down) and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
+The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed shallow ~15° side-on tilt (close to the ground, not top-down) and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho half-window is fixed at `6.2` world units so the player and nearby facades read larger and closer. It remains near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
 
 ## What is 3D vs 2D
 

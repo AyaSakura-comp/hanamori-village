@@ -111,6 +111,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 - Babylon always renders at the iPhone 14 Pro Max native panel resolution rotated to landscape, `2796 × 1290`, with a fixed 2796:1290 composition. Keep FXAA and depth-of-field disabled: native-resolution pixel billboards must remain crisp on Retina displays rather than being softened by post-processing. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
+- The authored orthographic camera uses `CAM.view = 6.2`, keeping the player and nearby facade details closer and larger without changing the fixed native render target.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 
 ## Current gameplay

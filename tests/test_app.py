@@ -103,6 +103,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("function createGround", js)
         self.assertIn("function createTown", js)
         self.assertIn("BABYLON.Camera.ORTHOGRAPHIC_CAMERA", js)
+        self.assertIn("view: 6.2", js)
         self.assertIn("createEnvironmentEffects", js)
         self.assertIn("pipeline.imageProcessing.vignetteEnabled", js)
         self.assertIn("new BABYLON.PBRMaterial", js)
