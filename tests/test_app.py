@@ -171,6 +171,8 @@ class VillageAppContract(unittest.TestCase):
 
         self.assertIn("p.position.set(x, height / 2, z)", js)
         self.assertIn("const foregroundProps = [", js)
+        self.assertIn("step:12.4, count:6", js)
+        self.assertIn("step:12.8, count:6", js)
         self.assertIn("const backgroundCottages =", js)
         self.assertIn("createForegroundAsset(key, x, height, i % 2 === 0, -8.2, false)", js)
         self.assertNotIn("source:'building'", js)

@@ -243,8 +243,8 @@ function createTown() {
  });
  // The near-camera layers contain only street props — carts and wells — never houses.
  const foregroundProps = [
-  { z:10.8, start:-34, step:6.2, count:12 },
-  { z:15.2, start:-31, step:6.4, count:11 }
+  { z:10.8, start:-34, step:12.4, count:6 },
+  { z:15.2, start:-31, step:12.8, count:6 }
  ];
  const propKeys = ['merchant-wagon','blue-wagon','flower-well'];
  foregroundProps.forEach((row, ri) => {
