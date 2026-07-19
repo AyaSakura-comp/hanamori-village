@@ -203,16 +203,19 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn('id="story-cg"', html)
         self.assertIn('class="portrait-frame hero-side"', html)
         self.assertIn('class="portrait-frame npc-side"', html)
-        self.assertIn('assets/hero-portrait.png', html)
+        self.assertIn('assets/dialogue/hero.png', html)
+        self.assertIn("assets/dialogue/npc-${npc.face}.png", js)
+        self.assertIn("rotateY(-9deg)", css)
+        self.assertIn("rotateY(9deg)", css)
         self.assertIn('id="story-text"', html)
         self.assertIn("function advanceStory", js)
         self.assertIn("endStory", js)
-        self.assertIn("village-cg-0.png", html)
-        self.assertIn("village-cg-${npc.face}.png", js)
+        self.assertIn("assets/dialogue/npc-0.png", html)
+        self.assertIn("dialogue/npc-${npc.face}.png", js)
         self.assertIn("#story.active", css)
         self.assertIn(".hero-side", css)
         self.assertIn(".npc-side", css)
-        self.assertIn("object-position:center top", css)
+        self.assertIn("object-position:center bottom", css)
 
 
 if __name__ == "__main__":
