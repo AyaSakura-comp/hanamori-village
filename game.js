@@ -120,16 +120,13 @@ function groundMaterial(name, base, uScale, vScale, ao = false) {
 }
 
 function createGround() {
- // Grass base — a real 3D ground plane with normal-mapped blades (X = long street axis, Z = depth).
- const g = BABYLON.MeshBuilder.CreateGround('ground-base', { width: 130, height: 48, subdivisions: 4 }, scene);
- g.position.z = -3; g.material = groundMaterial('grass', 'grass', 40, 15); g.receiveShadows = true;
-
- // One continuous paved street the whole length (no rectangular patch); the plaza just widens it.
- const streetTop = BABYLON.MeshBuilder.CreateGround('main-street', { width: 104, height: 7.0, subdivisions: 2 }, scene);
- streetTop.position.set(0, 0.06, 0.6); streetTop.material = groundMaterial('street', 'stone', 36, 2.4); streetTop.receiveShadows = true;
+ // The floor is ONE big textured 3D plane — effectively boundless, so the town never shows a floor edge.
+ // No stacked floor overlays: a single paved-stone ground (diffuse + normal for real relief under the sun).
+ const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 240, subdivisions: 6 }, scene);
+ g.position.z = -3; g.material = groundMaterial('ground', 'stone', 200, 80); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
- rune.position.set(0, 0.1, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
+ rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
 }
 
 let runeMat = null;
