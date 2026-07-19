@@ -26,11 +26,11 @@ const RENDER_DISTANCE = 18; // tighter camera budget: loaded objects outside thi
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 let debugEnabled = false, debugYaw = 0, debugGesture = null;
 const debugPointers = new Map();
-const debugCamera = { x:0, y:0, z:0, angle:15, view:4.6 };
+const debugCamera = { x:0, y:0, z:0, angle:15, view:5.0 };
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 8.0, back: 21, targetY: 2.4, targetZ: -0.8, view: 4.6 };
+const CAM = { height: 8.0, back: 21, targetY: 2.4, targetZ: -0.8, view: 5.0 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -212,13 +212,13 @@ const FOREGROUND_ASPECT = {
  'red-bakery':1.285, 'blue-smithy':1.361, 'moss-workshop':1.250, 'fishing-shack':1.273, 'red-cottage':1.283, 'stable':1.274,
  'purple-potion':1.228, 'honey-lodge':1.219, 'moon-cottage':1.125, 'boathouse':1.225, 'moss-shrine':1.187, 'greenhouse':1.371
 };
-function createForegroundAsset(key, x, height, flip = false, z = 17.2) {
+function createForegroundAsset(key, x, height, flip = false, z = 17.2, framing = true) {
  const width = height * FOREGROUND_ASPECT[key];
  const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}-${z}`, { width, height }, scene);
  p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  registerStreamedVisual(p, `assets/foreground/${key}.png`, m => { if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, flip ? 'flip' : 'normal');
  contactShadow(x, z + .1, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
- p.fadeR = width * .42; occluders.push(p);
+ if (framing) { p.fadeR = width * .42; occluders.push(p); }
 }
 
 function createTown() {
@@ -234,26 +234,23 @@ function createTown() {
  const backX = [-33, -28.5, -23.5, -18.5, -13.5, -9, -4.5, 0.5, 5.5, 10.5, 17, 23, 28, 33];
  backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
- // Three staggered near-camera rows form a crowded neighbourhood instead of one ruler-straight lineup.
- // The outer rows deliberately reuse the main facade set; only the middle row uses dedicated foreground art.
- const foregroundRows = [
-  { z:9.4, start:-35, step:4.7, count:16, source:'building', height:4.1, offset:3 },
-  { z:13.4, start:-33, step:4.0, count:18, source:'foreground', height:3.5, offset:0 },
-  { z:17.4, start:-36, step:4.6, count:16, source:'building', height:4.4, offset:7 }
+ // Move every cottage/shop silhouette behind the street, including the generated foreground set.
+ const backgroundCottages = Object.keys(FOREGROUND_ASPECT).filter(key => !['merchant-wagon','blue-wagon','flower-well'].includes(key));
+ backgroundCottages.forEach((key, i) => {
+  const x = -34 + i * (68 / Math.max(1, backgroundCottages.length - 1));
+  const height = 4.2 + (i % 3) * .35;
+  createForegroundAsset(key, x, height, i % 2 === 0, -8.2, false);
+ });
+ // The near-camera layers contain only street props — carts and wells — never houses.
+ const foregroundProps = [
+  { z:10.8, start:-34, step:6.2, count:12 },
+  { z:15.2, start:-31, step:6.4, count:11 }
  ];
- const foregroundKeys = Object.keys(FOREGROUND_ASPECT);
- foregroundRows.forEach((row, ri) => {
+ const propKeys = ['merchant-wagon','blue-wagon','flower-well'];
+ foregroundProps.forEach((row, ri) => {
   for (let i = 0; i < row.count; i++) {
-   const x = row.start + i * row.step;
-   const height = row.height + ((i + ri) % 3 - 1) * .25;
-   const flip = (i + ri) % 2 === 0;
-   if (row.source === 'building') {
-    const key = BUILDINGS[(i + row.offset) % BUILDINGS.length];
-    createBuilding(key, x, row.z, 5, height, flip, true);
-   } else {
-    const key = foregroundKeys[(i + row.offset) % foregroundKeys.length];
-    createForegroundAsset(key, x, height, flip, row.z);
-   }
+   const key = propKeys[(i + ri) % propKeys.length], x = row.start + i * row.step;
+   createForegroundAsset(key, x, key === 'flower-well' ? 2.5 : 2.9, (i + ri) % 2 === 0, row.z);
   }
  });
 }
@@ -428,12 +425,12 @@ function syncDebugCamera() {
  const read = (id, fallback) => { const n = Number(document.querySelector(id).value); return Number.isFinite(n) ? n : fallback; };
  debugCamera.x = read('#debug-x', 0); debugCamera.y = read('#debug-y', 0); debugCamera.z = read('#debug-z', 0);
  debugCamera.angle = Math.max(1, Math.min(75, read('#debug-angle', 15)));
- debugCamera.view = Math.max(1.5, Math.min(12, read('#debug-view', 4.6)));
+ debugCamera.view = Math.max(1.5, Math.min(12, read('#debug-view', 5.0)));
  resizeCamera();
 }
 function resetDebugCamera() {
- debugYaw = 0; debugGesture = null; debugPointers.clear(); Object.assign(debugCamera, {x:0,y:0,z:0,angle:15,view:4.6});
- for (const [id, value] of [['#debug-x',0],['#debug-y',0],['#debug-z',0],['#debug-angle',15],['#debug-view',4.6]]) document.querySelector(id).value = value;
+ debugYaw = 0; debugGesture = null; debugPointers.clear(); Object.assign(debugCamera, {x:0,y:0,z:0,angle:15,view:5.0});
+ for (const [id, value] of [['#debug-x',0],['#debug-y',0],['#debug-z',0],['#debug-angle',15],['#debug-view',5.0]]) document.querySelector(id).value = value;
  resizeCamera();
 }
 function startTouch(e) {
