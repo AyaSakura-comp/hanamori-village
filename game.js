@@ -18,7 +18,7 @@ let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, 
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 10.5, back: 18.5, targetY: 2.9, targetZ: -1.4, view: 7.2 };
+const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 7.0 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -120,10 +120,11 @@ function groundMaterial(name, base, uScale, vScale, ao = false) {
 }
 
 function createGround() {
- // The floor is ONE big textured 3D plane — effectively boundless, so the town never shows a floor edge.
- // No stacked floor overlays: a single paved-stone ground (diffuse + normal for real relief under the sun).
- const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 240, subdivisions: 6 }, scene);
- g.position.z = -3; g.material = groundMaterial('ground', 'stone', 200, 80); g.receiveShadows = true;
+ // The floor is ONE big textured 3D plane (paved stone, diffuse + normal for real relief). It reaches
+ // far into the foreground but ends just behind the back wall, so the background above the buildings is
+ // sky + treeline rather than stone riding up the screen. The wall hides the far edge.
+ const g = BABYLON.MeshBuilder.CreateGround('ground', { width: 600, height: 190, subdivisions: 6 }, scene);
+ g.position.z = 85; g.material = groundMaterial('ground', 'stone', 200, 63); g.receiveShadows = true;
  // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
  const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
  rune.position.set(0, 0.06, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
@@ -262,13 +263,13 @@ function setupPostProcess() {
  pipeline.depthOfFieldEnabled = true; pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.Low;
  pipeline.depthOfField.focusDistance = 4200; pipeline.depthOfField.focalLength = 24; pipeline.depthOfField.fStop = 22;
  pipeline.imageProcessingEnabled = true; pipeline.imageProcessing.contrast = 1.12; pipeline.imageProcessing.exposure = 1.02;
- pipeline.imageProcessing.vignetteEnabled = true; pipeline.imageProcessing.vignetteWeight = 1.6; pipeline.imageProcessing.vignetteColor = new BABYLON.Color4(.03, .06, .06, 1);
+ pipeline.imageProcessing.vignetteEnabled = true; pipeline.imageProcessing.vignetteWeight = 1.05; pipeline.imageProcessing.vignetteColor = new BABYLON.Color4(.04, .07, .07, 1);
  pipeline.imageProcessing.toneMappingEnabled = true;
 }
 
 function createScene() {
  scene = new BABYLON.Scene(engine);
- scene.clearColor = new BABYLON.Color4(.55, .62, .68, 1);   // hazy warm sky behind DoF
+ scene.clearColor = new BABYLON.Color4(.66, .72, .74, 1);   // soft afternoon sky behind the treeline
  scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR; scene.fogColor = new BABYLON.Color3(.7, .73, .68); scene.fogStart = 55; scene.fogEnd = 95;
  scene.collisionsEnabled = true;
  camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, CAM.height, CAM.back), scene);

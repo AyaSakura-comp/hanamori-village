@@ -71,12 +71,12 @@ Map objects use Y-based depth so characters pass naturally in front of and behin
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
-The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~25–30° side-on downward tilt and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
+The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed shallow ~15° side-on tilt (close to the ground, not top-down) and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is near-centred so the town frontage fills the frame (there is no persistent bottom panel to clear). Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
 
 ## What is 3D vs 2D
 
 **3D geometry (real meshes, lit, cast/receive shadows, collide):**
-- Ground: grass base plane and the paved street, both driven by **real seamless texture assets** (CC0 from ambientCG) with **diffuse + normal maps** so the stone catches the directional sun as genuine relief — not a flat image. Files live in `assets/textures/` (`grass_*`, `stone_*`). Ground textures tile with anisotropic filtering.
+- Ground: a single large paved-stone plane driven by a **real seamless texture asset** (CC0 from ambientCG) with **diffuse + normal maps** so the stone catches the directional sun as genuine relief — not a flat image. Files live in `assets/textures/` (`stone_*`), tiled with anisotropic filtering. The plane reaches far into the foreground but ends just behind the back wall, so the background above the buildings is sky + treeline, not stone riding up the screen.
 - Architecture of the enclosure: stone retaining back-wall, low street curb, and end-cap walls (procedural stone-brick canvas material, `drawStoneBrick`). These carry the collision that keeps the player on the street.
 - Invisible collision slabs behind backdrop buildings and under solid props.
 
