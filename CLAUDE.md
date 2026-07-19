@@ -104,7 +104,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Inspect transparent assets over light and dark backgrounds; there must be no white box, coloured fringe, neighbouring character fragment, or clipped body part.
 - Confirm buildings align with roads and their invisible collision rectangles block only the occupied footprint.
 - Confirm CSS tilt-shift keeps the middle gameplay band sharp while the top and bottom are softly blurred; verify the warm/cool grade, long directional shadows, contact shadows, and additive lantern pulses do not hide paths or NPCs.
-- The scene uses real Babylon.js hemispheric/directional lighting, shadow maps, low depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette. Its golden-hour atmosphere is rendered with a camera-side warm directional sun, three low-intensity facade spotlights, a lowered camera-visible procedural cloud layer, three inexpensive diagonal additive light-ray planes, and a capped 140-particle dust system. Billboard textures are streamed only within `STREAM_DISTANCE` (24 world units) and disposed outside that radius; loaded meshes beyond `RENDER_DISTANCE` (18 units) are explicitly hidden. The street uses Poly Haven `cobblestone_floor_001` CC0 PBR maps with shallow parallax occlusion and perspective-compensated world-Z scale so grazing side light reveals stone relief. Characters, NPCs, buildings, and props are vertical billboard planes; ground, roads, river, bridge, and collisions are true 3D meshes.
+- The scene uses real Babylon.js hemispheric/directional lighting, shadow maps, low depth-of-field, restrained bloom, ACES tone mapping, color grading, and vignette. Its golden-hour atmosphere is rendered with a camera-side warm directional sun, three low-intensity facade spotlights, a lowered camera-visible procedural cloud layer, three inexpensive diagonal additive light-ray planes, and a capped 140-particle dust system. Billboards load within `STREAM_DISTANCE` (24 world units), disable beyond `STREAM_RELEASE_DISTANCE` (32 units), and reuse one cached material per image/flip variant instead of repeatedly decoding and uploading duplicate textures; loaded meshes beyond `RENDER_DISTANCE` (18 units) are explicitly hidden. The render loop is capped at 60 FPS on ProMotion devices, and expensive parallax occlusion is disabled for coarse-pointer/mobile clients to prevent sustained walking from heating and throttling the GPU. The street uses Poly Haven `cobblestone_floor_001` CC0 PBR maps with desktop shallow parallax occlusion and perspective-compensated world-Z scale so grazing side light reveals stone relief. Characters, NPCs, buildings, and props are vertical billboard planes; ground, roads, river, bridge, and collisions are true 3D meshes.
 - Run `node --check game.js` and `python3 -m unittest tests/test_app.py -v` before commit, then verify the deployed GitHub Pages build.
 
 ## Fixed viewport and debug camera
@@ -113,6 +113,12 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
 - The authored orthographic camera uses `CAM.view = 6.2`, keeping the player and nearby facade details closer and larger without changing the fixed native render target.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
+
+## Billboard aspect ratios
+
+- Cropped PNG dimensions are authoritative. Building billboard width is computed as `height × BUILDING_ASPECT[key]`; never stretch every facade into a generic requested width.
+- Keep `BUILDING_ASPECT` synchronized with the actual files in `assets/buildings/`. Props follow the same rule through `PROP_ASPECT`.
+- Collision footprints and contact shadows derive from the fitted width so visuals and physical space remain aligned.
 
 ## Current gameplay
 

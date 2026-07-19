@@ -4,6 +4,8 @@ const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
 // iPhone 14 Pro Max native panel, rotated to landscape (Apple: 2796-by-1290 pixels).
 const LANDSCAPE_RENDER = { width: 2796, height: 1290 };
+const MOBILE_RENDER = matchMedia('(pointer: coarse)').matches;
+const FRAME_INTERVAL = 1000 / 60;
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
@@ -17,7 +19,9 @@ const npcs = [
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
 const streamedVisuals = [];
+const streamedMaterialCache = new Map();
 const STREAM_DISTANCE = 24; // preload textures just beyond the frame
+const STREAM_RELEASE_DISTANCE = 32; // hysteresis prevents load/unload thrashing at district boundaries
 const RENDER_DISTANCE = 18; // tighter camera budget: loaded objects outside this band do not render
 let engine, scene, camera, player, shadowGenerator, activeNpc = null, line = 0, talking = false, vector = { x: 0, y: 0 }, origin = null, touchStart = null, direction = 'down', zoneIndex = -1, walkClock = 0;
 let debugEnabled = false, debugYaw = 0, debugGesture = null;
@@ -30,13 +34,18 @@ const CAM = { height: 7.6, back: 21, targetY: 2.4, targetZ: -0.8, view: 6.2 };
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
 function spriteMaterial(name, url) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseTexture = pixelTexture(url); m.opacityTexture = m.diffuseTexture; m.useAlphaFromDiffuseTexture = true; m.backFaceCulling = false; m.specularColor = BABYLON.Color3.Black(); m.emissiveColor = new BABYLON.Color3(.12, .12, .12); return m; }
-function registerStreamedVisual(mesh, url, configure) { mesh.setEnabled(false); streamedVisuals.push({ mesh, url, configure, loaded: false }); }
+function registerStreamedVisual(mesh, url, configure, variant = 'normal') { mesh.setEnabled(false); streamedVisuals.push({ mesh, url, configure, variant, loaded: false }); }
+function cachedStreamedMaterial(item) {
+ const key = `${item.url}:${item.variant}`;
+ if (!streamedMaterialCache.has(key)) { const m = spriteMaterial(`stream-${key}`, item.url); if (item.configure) item.configure(m); streamedMaterialCache.set(key, m); }
+ return streamedMaterialCache.get(key);
+}
 function updateAssetStreaming(force = false) {
  if (!player) return;
  for (const item of streamedVisuals) {
-  const near = Math.abs(item.mesh.position.x - player.position.x) <= STREAM_DISTANCE;
-  if (near && !item.loaded) { item.mesh.material = spriteMaterial(`${item.mesh.name}-stream-mat`, item.url); if (item.configure) item.configure(item.mesh.material); item.mesh.setEnabled(true); item.loaded = true; }
-  else if (!near && item.loaded) { item.mesh.setEnabled(false); item.mesh.material.dispose(true, true); item.mesh.material = null; item.loaded = false; }
+  const distance = Math.abs(item.mesh.position.x - player.position.x);
+  if (distance <= STREAM_DISTANCE && !item.loaded) { item.mesh.material = cachedStreamedMaterial(item); item.mesh.setEnabled(true); item.loaded = true; }
+  else if (distance > STREAM_RELEASE_DISTANCE && item.loaded) { item.mesh.setEnabled(false); item.mesh.material = null; item.loaded = false; }
   if (item.loaded) item.mesh.isVisible = Math.abs(item.mesh.position.x - camera.position.x) <= RENDER_DISTANCE;
  }
 }
@@ -132,7 +141,7 @@ function groundMaterial(name, uScale, vScale) {
  const tex = (file, nonColor = false) => { const t = new BABYLON.Texture(`assets/textures/${file}`, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE); t.uScale = uScale; t.vScale = vScale; t.wrapU = t.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; t.anisotropicFilteringLevel = 8; if (nonColor) t.gammaSpace = false; return t; };
  m.albedoTexture = tex('medieval_cobble_color.jpg');
  m.bumpTexture = tex('medieval_cobble_normal.jpg', true); m.invertNormalMapY = true;
- m.bumpTexture.level = .9; m.useParallax = true; m.useParallaxOcclusion = true; m.parallaxScaleBias = .035;
+ m.bumpTexture.level = .9; m.useParallax = !MOBILE_RENDER; m.useParallaxOcclusion = !MOBILE_RENDER; m.parallaxScaleBias = .035;
  m.metallicTexture = tex('medieval_cobble_roughness.jpg', true); m.useRoughnessFromMetallicTextureGreen = true; m.useMetallnessFromMetallicTextureBlue = false; m.metallic = 0;
  m.ambientTexture = tex('medieval_cobble_ao.jpg', true); m.useAmbientInGrayScale = true; m.ambientTextureStrength = .72;
  m.roughness = .9; m.environmentIntensity = .45;
@@ -173,14 +182,18 @@ function createWalls() {
  for (const ex of [-46, 46]) box(`end-wall-${ex}`, ex, 1.4, -2, 0.8, 2.8, 20, stone, true);
 }
 
+const BUILDING_ASPECT = { guild:1.361, magic:.892, alchemy:1.086, smithy:1.033, tavern:.992, bakery:1.113, flower:1.006, chapel:1.025, home:.983, clocktower:.556, market:1.346 };
 function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foreground = false) {
+ // Cropped PNG dimensions are authoritative: preserve each facade's natural silhouette instead of stretching to a generic box.
+ const fittedWidth = height * BUILDING_ASPECT[key];
+ width = fittedWidth;
  const plane = BABYLON.MeshBuilder.CreatePlane(`building-${key}-${x}`, { width, height }, scene);
  plane.position.set(x, height / 2, z); plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  registerStreamedVisual(plane, `assets/buildings/${key}.png`, m => {
   if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; }
   // Facade sprites retain a small glossy lobe so camera-side spotlights produce a warm reflection.
   m.specularColor = new BABYLON.Color3(.38, .28, .16); m.specularPower = 48;
- });
+ }, flip ? 'flip' : 'normal');
  contactShadow(x, z + 0.1, width * .8, 1.8);
  shadowGenerator.addShadowCaster(plane);
  if (foreground) {
@@ -240,7 +253,7 @@ function createProp(key, x, z, height, opts = {}) {
  const width = height * aspect;
  const p = BABYLON.MeshBuilder.CreatePlane(`prop-${key}-${x}-${z}`, { width, height }, scene);
  p.position.set(x, height / 2 - (opts.sink || 0), z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
- registerStreamedVisual(p, `assets/props/${key}.png`, m => { if (opts.flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } });
+ registerStreamedVisual(p, `assets/props/${key}.png`, m => { if (opts.flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, opts.flip ? 'flip' : 'normal');
  if (!opts.noShadow) { contactShadow(x, z + height * 0.04, width * 0.7, Math.max(0.6, width * 0.32)); shadowGenerator.addShadowCaster(p); }
  if (opts.collide) { const b = box(`prop-col-${key}-${x}-${z}`, x, 0.5, z, width * 0.5, 1, 0.5, material(`prop-colmat-${x}-${z}`, '#223329'), true); b.isVisible = false; }
  if (opts.foreground) { p.fadeR = width * 0.5 + 1.0; occluders.push(p); }
@@ -406,4 +419,7 @@ function bindDom() {
 const canvas = document.querySelector('#game');
 engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: false, stencil: true, adaptToDeviceRatio: false });
 engine.setSize(LANDSCAPE_RENDER.width, LANDSCAPE_RENDER.height);
-bindDom(); createScene(); engine.runRenderLoop(() => scene.render());
+bindDom(); createScene();
+// ProMotion can request 120 FPS; cap at 60 to avoid sustained GPU heat/throttling while walking.
+let lastRender = 0;
+engine.runRenderLoop(() => { const now = performance.now(); if (now - lastRender >= FRAME_INTERVAL - 1) { lastRender = now; scene.render(); } });

@@ -54,6 +54,8 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("camera.target.copyFrom", js)
         self.assertIn("const ZONES", js)
         self.assertIn("function createBuilding", js)
+        self.assertIn("BUILDING_ASPECT", js)
+        self.assertIn("const fittedWidth = height * BUILDING_ASPECT[key]", js)
 
     def test_iphone_uses_fullscreen_map_and_anywhere_touch_joystick(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -120,6 +122,10 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("registerStreamedVisual", js)
         self.assertIn("updateAssetStreaming", js)
         self.assertIn("STREAM_DISTANCE", js)
+        self.assertIn("STREAM_RELEASE_DISTANCE = 32", js)
+        self.assertIn("streamedMaterialCache", js)
+        self.assertIn("MOBILE_RENDER", js)
+        self.assertIn("FRAME_INTERVAL = 1000 / 60", js)
         self.assertIn("clouds.position.set(0, 7.8, -17.5)", js)
         self.assertIn("new BABYLON.Vector3(.28, -.9, -.72)", js)
         self.assertIn("LANDSCAPE_RENDER = { width: 2796, height: 1290 }", js)
