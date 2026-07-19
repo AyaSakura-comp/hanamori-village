@@ -82,7 +82,13 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 | 4 | 凱恩 | town guard (**female knight**) | long, straight black, past the shoulders | blue tabard + short blue skirt over light silver plate armour, dark blue cape, white greaves/boots | sword at hip |
 | 5 | 菲菲 | fountain child | light teal/blue | wide tan sun hat, cream vintage lace dress | wildflowers + small basket |
 
-The protagonist master (`assets/hero-walk.png`) stays the existing design; do not restyle it here. Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
+### Protagonist — 遙 (Haruka)
+
+The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all six NPCs.
+
+Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`. Columns are the walk cycle — **col 1 is the neutral idle** (shown when standing), cols 0/2 are the left/right step, cycled at 8 fps while moving. The character is front-facing in every directional row (the retired back-facing artwork is not used); keep her feet on the shared baseline (`y≈124`) at the same scale as the NPCs. Regenerate as a single multi-pose sheet (identity-consistent) if the design changes.
+
+Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
 
 ### Idle animations
 
