@@ -79,7 +79,7 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 | 1 | 米洛 | carpenter, young man | tousled brown | tan short-sleeve tunic, teal-blue neck scarf, brown leather work apron with tool pouches, navy baggy trousers, tall brown boots, fingerless wraps | tool pouches / crossed arms |
 | 2 | 莎婆婆 | village elder | grey, tied back | lavender shawl over a sage-green floral long dress | wooden walking cane |
 | 3 | 艾妲 | baker girl | wavy blonde, shoulder-length | white headscarf/kerchief, cream puff-sleeve blouse, burnt-orange apron dress, white socks, short brown boots | basket of bread (baguettes) |
-| 4 | 凱恩 | town guard | long black | blue tabard over light silver armour, dark cape, white greaves/boots | sword at hip |
+| 4 | 凱恩 | town guard (**female knight**) | long, straight black, past the shoulders | blue tabard + short blue skirt over light silver plate armour, dark blue cape, white greaves/boots | sword at hip |
 | 5 | 菲菲 | fountain child | light teal/blue | wide tan sun hat, cream vintage lace dress | wildflowers + small basket |
 
 The protagonist master (`assets/hero-walk.png`) stays the existing design; do not restyle it here. Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
