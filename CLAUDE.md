@@ -111,7 +111,7 @@ Each entry in `npcs` couples narrative and art through `{ name, face, texture, x
 
 - Babylon always renders at the iPhone 14 Pro Max native panel resolution rotated to landscape, `2796 × 1290`, with a fixed 2796:1290 composition. Keep FXAA and depth-of-field disabled: native-resolution pixel billboards must remain crisp on Retina displays rather than being softened by post-processing. CSS letterboxes that landscape frame inside both portrait and landscape browser viewports.
 - Global text selection is disabled so drag controls and subtitles cannot be accidentally selected.
-- The authored orthographic camera uses proportional `CAM.view = 4.6` bounds, eliminating the flattened look caused by horizontal-only projection scaling. Its height is `6.9` against a 21-unit setback and `targetY = 2.4`, producing a roughly 12° floor angle. The player/NPC billboard dimensions are enlarged by the matching ~1.48× factor, preserving their prior on-screen size while the environment shows more town.
+- The authored orthographic camera uses proportional `CAM.view = 4.6` bounds, eliminating the flattened look caused by horizontal-only projection scaling. Its height is `14.5` against a 21-unit setback and `targetY = 2.4`, producing a roughly 30° floor angle. The player/NPC billboard dimensions are enlarged by the matching ~1.48× factor, preserving their prior on-screen size while the environment shows more town.
 - The top-right debug toggle enables two-pointer camera orbit; `重置相機` restores the authored side view. Debug orbit is inspection-only and does not alter normal movement mapping.
 
 ## Billboard aspect ratios
