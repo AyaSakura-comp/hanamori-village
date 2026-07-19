@@ -6,8 +6,6 @@ const CHARACTER_SCALE=1.75;
 const LANDSCAPE_RENDER = { width: 2796, height: 1290 };
 const MOBILE_RENDER = matchMedia('(pointer: coarse)').matches;
 const FRAME_INTERVAL = 1000 / 60;
-// Horizontal-only orthographic wide framing: more town at the sides without shrinking the hero vertically.
-const WIDE_ANGLE = 1.6;
 // Horizontal side-scroller: the street runs along X; Z is shallow depth. Districts sit left→right.
 const ZONES = [{ name:'河畔商店街', x: -24 }, { name:'花守中央廣場', x: 0 }, { name:'南風村口', x: 24 }];
 const npcs = [
@@ -31,7 +29,7 @@ const debugPointers = new Map();
 
 // Camera geometry: Octopath-style side-on view, slight downward tilt, scrolls horizontally along X.
 // view = vertical half-extent; landscape aspect widens the horizontal span automatically.
-const CAM = { height: 5.7, back: 21, targetY: 2.4, targetZ: -0.8, view: 3.1 };
+const CAM = { height: 6.9, back: 21, targetY: 2.4, targetZ: -0.8, view: 4.6 };
 
 function material(name, color) { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = BABYLON.Color3.FromHexString(color); m.specularColor = BABYLON.Color3.Black(); return m; }
 function pixelTexture(url) { const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE); t.hasAlpha = true; return t; }
@@ -304,14 +302,14 @@ function createBillboard(name, url, x, z, width, height) {
 function setSpriteFrame(mesh, column, row, columns, rows) { const t = mesh.material.diffuseTexture; t.uScale = 1 / columns; t.vScale = 1 / rows; t.uOffset = column / columns; t.vOffset = row / rows; }
 
 function loadAssets() {
- player = createBillboard('player', 'assets/hero-walk.png', 0, 0.8, 1.35, 1.85);
+ player = createBillboard('player', 'assets/hero-walk.png', 0, 0.8, 2.0, 2.75);
  player.ellipsoid = new BABYLON.Vector3(.32, .8, .22); player.ellipsoidOffset = new BABYLON.Vector3(0, .85, 0); player.checkCollisions = true;
  setSpriteFrame(player, 1, 0, 3, 4); shadowGenerator.addShadowCaster(player);
- player.contact = contactShadow(0, 0.8, 1.1, 0.9);
+ player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
-  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.3, 1.8);
+  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.93, 2.67);
   setSpriteFrame(n.sprite, 1, 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
-  contactShadow(n.x, n.z, 1.0, 0.85);
+  contactShadow(n.x, n.z, 1.4, 1.05);
  });
 }
 
@@ -387,7 +385,7 @@ function createScene() {
  return scene;
 }
 
-function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect * WIDE_ANGLE; camera.orthoRight = view * aspect * WIDE_ANGLE; }
+function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
