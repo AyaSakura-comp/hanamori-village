@@ -306,7 +306,8 @@ function loadAssets() {
  player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
   n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.93, 2.67);
-  setSpriteFrame(n.sprite, 1, 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
+  setSpriteFrame(n.sprite, 0, 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
+  n.phase = i * 0.63;   // desync each NPC's idle loop so they don't move in lockstep
   contactShadow(n.x, n.z, 1.4, 1.05);
  });
 }
@@ -386,6 +387,10 @@ function createScene() {
 function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = debugEnabled ? debugCamera.view : CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
+// Each NPC cycles its three idle poses (0,1,2,1) at ~3 fps, desynced by a per-NPC phase.
+// Driven by wall-clock time so the cadence is framerate-independent (the dt cap must not slow it down).
+const NPC_IDLE = [0, 1, 2, 1];
+function animateNpcs() { const t = performance.now() / 1000; for (const n of npcs) { if (!n.sprite) continue; const step = Math.floor(t * 3 + n.phase) % 4; setSpriteFrame(n.sprite, NPC_IDLE[step], 0, 3, 1); } }
 function move(dx, dy) { vector = { x: dx, y: dy }; }
 function update() {
  if (!player || talking) return;
@@ -402,6 +407,7 @@ function update() {
  }
  if (player.contact) player.contact.position.set(player.position.x, 0.03, player.position.z);
  animatePlayer(length > .08, dt);
+ animateNpcs();
  // Buildings over the tracked player become translucent rather than disappearing; ease the transition as the camera moves.
  for (const o of occluders) {
   const near = Math.abs(player.position.x - o.position.x) < o.fadeR;
