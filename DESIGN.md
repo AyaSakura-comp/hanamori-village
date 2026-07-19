@@ -124,7 +124,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Keep FXAA and depth-of-field disabled at the native Retina render size. Pixel billboards, UI, and stone detail must remain crisp; atmosphere should come from authored light, color, and particles rather than full-frame softening.
 - Prevent text selection throughout gameplay. A compact top-right debug toggle may enable two-finger camera orbit and expose a reset-camera button, but normal players retain the locked authored camera.
 - Diagonal aerial rays must visibly terminate as restrained additive light pools on the real cobblestone ground.
-- Foreground house billboards sit at world Z `10.8`, low enough to read as a bottom framing layer without covering the player lane.
+- Foreground house billboards sit at world Z `18.5`, using only the bottom edge as a framing layer so the central walking lane remains unobstructed.
 - Do give the protagonist distinct down, left, right, and up animation rows with idle middle frames.
 - Do keep character identity, palette, hair, outfit, and proportions identical between animation frames; only pose and pixel offsets may change.
 - Do give every NPC a subtle three-frame idle loop, four dialogue lines, and a dedicated full-body CG.

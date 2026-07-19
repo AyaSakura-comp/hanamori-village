@@ -157,7 +157,7 @@ class VillageAppContract(unittest.TestCase):
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
-        self.assertIn("x, 10.8, 6.0, 5.0", js)
+        self.assertIn("x, 18.5, 6.0, 5.0", js)
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
