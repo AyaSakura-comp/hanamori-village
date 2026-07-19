@@ -206,6 +206,15 @@ function createBuilding(key, x, z, width = 5, height = 4.6, flip = false, foregr
  return plane;
 }
 
+const FOREGROUND_ASPECT = { 'ivy-cottage':1.198, 'garden-cottage':1.193, 'gable-cottage':1.182, 'merchant-wagon':1.232, 'blue-wagon':1.130, 'flower-well':1.182 };
+function createForegroundAsset(key, x, height, flip = false) {
+ const width = height * FOREGROUND_ASPECT[key];
+ const p = BABYLON.MeshBuilder.CreatePlane(`foreground-${key}-${x}`, { width, height }, scene);
+ p.position.set(x, height / 2, 18.5); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
+ registerStreamedVisual(p, `assets/foreground/${key}.png`, m => { if (flip) { m.diffuseTexture.uScale = -1; m.diffuseTexture.uOffset = 1; } }, flip ? 'flip' : 'normal');
+ contactShadow(x, 18.6, width * .78, 1.4); shadowGenerator.addShadowCaster(p);
+}
+
 function createTown() {
  // Backdrop frontage: a continuous row of buildings along the far side of the street.
  const rows = [-31,-26,-21,-16,-7,-2,3,8,15,20,25,30];
@@ -219,8 +228,13 @@ function createTown() {
  const backX = [-33, -28.5, -23.5, -18.5, -13.5, -9, -4.5, 0.5, 5.5, 10.5, 17, 23, 28, 33];
  backX.forEach((x, i) => createBuilding(BUILDINGS[(i + 4) % BUILDINGS.length], x, -10.5, 5.6 + (i % 3) * 0.4, 5.0 + (i % 4) * 0.5, i % 2 === 0));
  createBuilding('clocktower', -18, -7.6, 4.4, 7.6);
- // Foreground occluders: a few buildings between camera and street that fade as the player passes.
- for (const x of [-20, -4, 12]) createBuilding(BUILDINGS[(x + 30) % BUILDINGS.length], x, 18.5, 6.0, 5.0, x % 2 === 0, true);
+ // Authored bottom framing layer: varied generated cottages, wagons, and a flower well.
+ const foreground = [
+  [-31,'ivy-cottage',4.4,false],[-23,'merchant-wagon',3.3,true],[-15,'garden-cottage',4.2,true],
+  [-7,'flower-well',3.2,false],[3,'gable-cottage',4.3,false],[13,'blue-wagon',3.3,true],
+  [23,'ivy-cottage',4.1,true],[32,'flower-well',3.0,true]
+ ];
+ foreground.forEach(([x,key,height,flip]) => createForegroundAsset(key, x, height, flip));
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).

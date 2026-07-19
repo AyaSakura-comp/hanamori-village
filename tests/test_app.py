@@ -56,6 +56,9 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("function createBuilding", js)
         self.assertIn("BUILDING_ASPECT", js)
         self.assertIn("const fittedWidth = height * BUILDING_ASPECT[key]", js)
+        self.assertIn("FOREGROUND_ASPECT", js)
+        self.assertIn("assets/foreground/", js)
+        self.assertIn("createForegroundAsset", js)
 
     def test_iphone_uses_fullscreen_map_and_anywhere_touch_joystick(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -157,7 +160,9 @@ class VillageAppContract(unittest.TestCase):
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
 
-        self.assertIn("x, 18.5, 6.0, 5.0", js)
+        self.assertIn("p.position.set(x, height / 2, 18.5)", js)
+        self.assertIn("'merchant-wagon'", js)
+        self.assertIn("'flower-well'", js)
 
     def test_dialogue_opens_fullscreen_character_cg_and_completes_story(self):
         html = (ROOT / "index.html").read_text(encoding="utf-8")
