@@ -69,9 +69,25 @@ The map always fills the viewport, including safe-area edges. HUD and dialogue a
 
 Map objects use Y-based depth so characters pass naturally in front of and behind scenery. Story CGs sit over a translucent map dimmer; transparent pixels must preserve environmental context.
 
-## Camera & terrain (HD-2D)
+## Camera & terrain (HD-2D horizontal side-scroller)
 
-The camera is an orthographic follow-cam with a shallow ~30° downward tilt (side-on, not top-down), framing a narrow ~12-unit-wide street so stone walls and building frontage always enclose the shot rather than leaving open grass. Ground, roads, plaza, river, bridge, retaining walls, and the back staircase are true 3D geometry textured with in-engine procedural pixel canvases (`drawGrass`/`drawCobble`/`drawRunePlaza`/`drawStoneBrick`/`drawWood`/`drawWater`); ground textures use mipmaps + trilinear + anisotropic filtering to avoid grazing-angle streaks, while sprites/walls stay crisp nearest-neighbour. The central square carries a glowing rune-circle cobble plaza as its landmark. Every billboard (buildings, NPCs, player) gets a soft radial contact-shadow decal on the ground so nothing floats.
+The world is a **landscape horizontal side-scroller**. The street runs along the world X axis; Z is a shallow depth band. The orthographic camera holds a fixed ~25–30° side-on downward tilt and scrolls horizontally, tracking only the player's X so the town reads as a continuous 16:9 Octopath-style frontage. The three districts sit left→right along X. The vertical ortho window is biased upward so the playable band clears the bottom dialogue panel. Because Babylon is left-handed, world −X maps to screen-right; horizontal input is negated so controls stay intuitive.
+
+## What is 3D vs 2D
+
+**3D geometry (real meshes, lit, cast/receive shadows, collide):**
+- Ground: grass base plane and the paved street, both driven by **real seamless texture assets** (CC0 from ambientCG) with **diffuse + normal maps** so the stone catches the directional sun as genuine relief — not a flat image. Files live in `assets/textures/` (`grass_*`, `stone_*`). Ground textures tile with anisotropic filtering.
+- Architecture of the enclosure: stone retaining back-wall, low street curb, and end-cap walls (procedural stone-brick canvas material, `drawStoneBrick`). These carry the collision that keeps the player on the street.
+- Invisible collision slabs behind backdrop buildings and under solid props.
+
+**2D pixel billboards (flat planes, `BILLBOARDMODE_Y`, always face camera):**
+- Buildings (backdrop rows + a deeper blurred row + fading foreground occluders), the player, all six NPCs, and every vegetation/street prop (trees, bushes, flowerbeds, lamps, barrels, fountain). Building and prop art is generated pixel art matted to transparency.
+- The glowing rune-circle **decal** on the plaza (a flat additive plane, not a billboard).
+- Soft radial **contact-shadow** decals under every billboard so nothing floats.
+
+**Removed:** the river/bridge/water were pulled out; anything floor-related is handled with 3D geometry + texture assets. (A future river should also be real 3D geometry, not a flat sprite.)
+
+**Foreground occlusion:** near-camera buildings never collide and fade to ~0.2 opacity when the player passes behind them, so they frame the shot without blocking the path.
 
 ## Shapes
 

@@ -107,28 +107,43 @@ function contactShadow(x, z, rx, rz) {
  p.position.set(x, 0.03, z); p.material = contactShadowMaterial(); p.isPickable = false; return p;
 }
 
+// 3D ground material driven by real seamless texture assets (diffuse + normal, optional AO).
+// The normal map gives genuine per-stone relief under the directional sun — a true 3D floor, not a flat image.
+function groundMaterial(name, base, uScale, vScale, ao = false) {
+ const m = new BABYLON.StandardMaterial(name, scene);
+ const tex = (suffix) => { const t = new BABYLON.Texture(`assets/textures/${base}_${suffix}.png`, scene); t.uScale = uScale; t.vScale = vScale; t.wrapU = t.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; t.anisotropicFilteringLevel = 8; return t; };
+ m.diffuseTexture = tex('color');
+ m.bumpTexture = tex('normal'); m.invertNormalMapY = true;   // ambientCG maps are OpenGL convention
+ if (ao) { m.ambientTexture = tex('ao'); }
+ m.specularColor = new BABYLON.Color3(.06, .06, .06);
+ return m;
+}
+
 function createGround() {
- // Large authored grass base so no rectangular seams show (X = long street axis, Z = depth).
- const grass = texturedMaterial('grass', 128, drawGrass, 44, 20, true);
- const g = BABYLON.MeshBuilder.CreateGround('ground-base', { width: 110, height: 44, subdivisions: 2 }, scene);
- g.position.z = -3; g.material = grass; g.receiveShadows = true;
+ // Grass base — a real 3D ground plane with normal-mapped blades (X = long street axis, Z = depth).
+ const g = BABYLON.MeshBuilder.CreateGround('ground-base', { width: 130, height: 48, subdivisions: 4 }, scene);
+ g.position.z = -3; g.material = groundMaterial('grass', 'grass', 40, 15); g.receiveShadows = true;
 
- // The walkable cobble street runs the whole length; a wider rune plaza marks the centre.
- const road = texturedMaterial('road', 256, drawCobble, 16, 1.6, true);
- box('main-road', 0, 0.05, 0.6, 84, 0.1, 6.4, road);
- const plaza = texturedMaterial('plaza', 512, drawRunePlaza, 1, 1, true);
- box('plaza', 0, 0.06, 0.6, 15, 0.12, 7.4, plaza).receiveShadows = true;
- // Side lanes leading into depth at each district (visual breaks in the frontage).
- for (const lx of [-24, 24]) box(`lane-${lx}`, lx, 0.055, -5, 4, 0.1, 8, texturedMaterial('lane' + lx, 256, drawCobble, 1.6, 3.2, true));
+ // One continuous paved street the whole length (no rectangular patch); the plaza just widens it.
+ const streetTop = BABYLON.MeshBuilder.CreateGround('main-street', { width: 104, height: 7.0, subdivisions: 2 }, scene);
+ streetTop.position.set(0, 0.06, 0.6); streetTop.material = groundMaterial('street', 'stone', 36, 2.4); streetTop.receiveShadows = true;
+ // Glowing rune-circle decal laid over the paving at the centre as the plaza landmark.
+ const rune = BABYLON.MeshBuilder.CreateGround('rune', { width: 8.5, height: 5.6 }, scene);
+ rune.position.set(0, 0.1, 0.6); rune.material = runeDecalMaterial(); rune.isPickable = false;
+}
 
- // River as a vertical chokepoint across the street; a narrow bridge is the only crossing.
- const water = new BABYLON.StandardMaterial('river', scene); water.diffuseTexture = makeCanvasTexture('water-tex', 128, drawWater); water.diffuseTexture.uScale = 1; water.diffuseTexture.vScale = 5; water.specularColor = new BABYLON.Color3(.3, .4, .45); water.alpha = .9;
- const w = water.diffuseTexture; scene.onBeforeRenderObservable.add(() => { w.vOffset += 0.0009; });
- box('river', -13, 0.02, -2, 3.2, 0.08, 22, water);
- box('bridge', -13, 0.16, 0.9, 4.6, 0.3, 3.0, texturedMaterial('bridge', 128, drawWood, 2, 1));
- for (const bz of [-0.5, 2.3]) box(`bridge-rail-${bz}`, -13, 0.5, bz, 4.6, 0.7, 0.25, texturedMaterial('bridge-rail' + bz, 128, drawWood, 1, 1));
- // Invisible barriers plug the river above and below the bridge band (z -0.6..2.4), forcing the crossing.
- for (const b of [{ z: -1.6, d: 2.0 }, { z: 3.2, d: 1.8 }]) { const barrier = box(`river-barrier-${b.z}`, -13, 0.7, b.z, 3.6, 1.4, b.d, material('river-wall', '#245f72'), true); barrier.isVisible = false; }
+let runeMat = null;
+function runeDecalMaterial() {
+ if (runeMat) return runeMat;
+ const t = new BABYLON.DynamicTexture('rune-decal', { width: 512, height: 512 }, scene, true);
+ const c = t.getContext(), s = 512, cx = s / 2;
+ c.clearRect(0, 0, s, s); c.strokeStyle = '#e8c56a'; c.globalAlpha = .8;
+ c.lineWidth = 4; for (const r of [s * .46, s * .34, s * .18]) { c.beginPath(); c.arc(cx, cx, r, 0, Math.PI * 2); c.stroke(); }
+ c.lineWidth = 3; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; c.beginPath(); c.moveTo(cx + Math.cos(a) * s * .18, cx + Math.sin(a) * s * .18); c.lineTo(cx + Math.cos(a) * s * .46, cx + Math.sin(a) * s * .46); c.stroke(); }
+ c.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2 - Math.PI / 2, px = cx + Math.cos(a) * s * .31, py = cx + Math.sin(a) * s * .31; i ? c.lineTo(px, py) : c.moveTo(px, py); } c.closePath(); c.stroke();
+ t.update();
+ const m = new BABYLON.StandardMaterial('rune-mat', scene); m.diffuseTexture = t; m.opacityTexture = t; m.useAlphaFromDiffuseTexture = true; m.emissiveColor = new BABYLON.Color3(.5, .38, .12); m.disableLighting = true; m.specularColor = BABYLON.Color3.Black(); m.backFaceCulling = false;
+ runeMat = m; return m;
 }
 
 function createWalls() {
@@ -177,14 +192,14 @@ function createTown() {
 }
 
 // Which prop textures actually exist in assets/props (kept in sync with the matted output).
-const DECOR = new Set();   // populated once matted prop textures land in assets/props/
+const DECOR = new Set(['tree', 'fountain', 'flowerbed', 'barrels']);   // matted props available in assets/props/
 const has = k => DECOR.has(k);
 // Vegetation and street props fill every corner so no bare grass or empty plaza remains.
 function createDecor() {
  // Backdrop treeline fills the grass band above the buildings; midground trees add depth.
  if (has('tree')) {
-  for (let x = -40; x <= 40; x += 7.5) createProp('tree', x + (x % 2 ? 1 : 0), -11 - (x % 3 === 0 ? 1 : 0), 8.5 + (x % 3), { noShadow: true, flip: x % 2 === 0 });
-  for (const x of [-25, -14, -1, 9, 21, 33]) createProp('tree', x, -4.7, 6.5, { flip: x % 2 === 0 });
+  for (let x = -40; x <= 40; x += 7.5) createProp('tree', x + (x % 2 ? 1 : 0), -11 - (x % 3 === 0 ? 1 : 0), 8.5 + (x % 3), { noShadow: true, sink: 0.6, flip: x % 2 === 0 });
+  for (const x of [-25, -14, -1, 9, 21, 33]) createProp('tree', x, -4.7, 6.5, { sink: 0.5, flip: x % 2 === 0 });
  }
  // Bushes and flowerbeds along the grass strips and the near curb.
  if (has('bushes')) {
@@ -200,12 +215,12 @@ function createDecor() {
 }
 
 // A pixel-art prop billboard (tree, bush, lamp, fountain, crate...) grounded with a contact shadow.
-const PROP_ASPECT = { tree: 0.85, bushes: 1.5, fountain: 1.15, lamp: 0.34, flowerbed: 1.35, barrels: 1.2 };
+const PROP_ASPECT = { tree: 1.18, bushes: 0.8, fountain: 1.29, lamp: 0.34, flowerbed: 1.21, barrels: 0.99 };
 function createProp(key, x, z, height, opts = {}) {
  const aspect = opts.aspect || PROP_ASPECT[key] || 1;
  const width = height * aspect;
  const p = BABYLON.MeshBuilder.CreatePlane(`prop-${key}-${x}-${z}`, { width, height }, scene);
- p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
+ p.position.set(x, height / 2 - (opts.sink || 0), z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  p.material = spriteMaterial(`prop-${key}-${x}-${z}-mat`, `assets/props/${key}.png`);
  if (opts.flip) { p.material.diffuseTexture.uScale = -1; p.material.diffuseTexture.uOffset = 1; }
  if (!opts.noShadow) { contactShadow(x, z + height * 0.04, width * 0.7, Math.max(0.6, width * 0.32)); shadowGenerator.addShadowCaster(p); }
