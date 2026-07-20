@@ -216,6 +216,10 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn(".hero-side", css)
         self.assertIn(".npc-side", css)
         self.assertIn("object-position:center bottom", css)
+        self.assertIn(".dialogue-stage{position:absolute;inset:2% 3% 0", css)
+        self.assertIn(".story-box{position:absolute;z-index:2", css)
+        self.assertNotIn("scale(.92)", css)
+        self.assertNotIn("scale(1.38)", css)
 
 
 if __name__ == "__main__":
