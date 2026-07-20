@@ -2,6 +2,8 @@
 const WORLD = { w: 20, h: 72 };
 const MOVE_SPEED=280;
 const CHARACTER_SCALE=1.75;
+// The supplied three-tile sheet uses its centre pose as the canonical idle.
+const HERO_IDLE_FRAME = 1;
 // iPhone 14 Pro Max native panel, rotated to landscape (Apple: 2796-by-1290 pixels).
 const LANDSCAPE_RENDER = { width: 2796, height: 1290 };
 const MOBILE_RENDER = matchMedia('(pointer: coarse)').matches;
@@ -302,7 +304,7 @@ function setSpriteFrame(mesh, column, row, columns, rows) { const t = mesh.mater
 function loadAssets() {
  player = createBillboard('player', 'assets/hero-walk.png', 0, 0.8, 2.0, 2.75);
  player.ellipsoid = new BABYLON.Vector3(.32, .8, .22); player.ellipsoidOffset = new BABYLON.Vector3(0, .85, 0); player.checkCollisions = true;
- setSpriteFrame(player, 1, 0, 3, 4); shadowGenerator.addShadowCaster(player);
+ setSpriteFrame(player, HERO_IDLE_FRAME, 0, 3, 4); shadowGenerator.addShadowCaster(player);
  player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
   n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.93, 2.67);
@@ -401,7 +403,7 @@ function createScene() {
 
 function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = debugEnabled ? debugCamera.view : CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
-function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, 1, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
+function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
 // Each NPC holds one calm resting pose; the idle motion is only a subtle breathing/cloth sway.
 const NPC_REST = [2, 1, 0, 1, 0, 0];   // per-NPC resting frame (the calmest of the three poses)
 function animateNpcs() {

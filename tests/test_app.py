@@ -84,6 +84,8 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("const MOVE_SPEED=280", js)
         self.assertIn("const CHARACTER_SCALE=1.75", js)
         self.assertIn("hero-walk.png", js)
+        self.assertIn("const HERO_IDLE_FRAME = 1", js)
+        self.assertIn("setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4)", js)
         self.assertIn("setSpriteFrame", js)
         self.assertIn("animatePlayer", js)
         self.assertIn("{down:3,left:2,right:1,up:3}", js)
