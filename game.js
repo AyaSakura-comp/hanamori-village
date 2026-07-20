@@ -320,7 +320,7 @@ function loadAssets() {
  setSpriteFrame(player, HERO_IDLE_FRAME, 0, 3, 4); shadowGenerator.addShadowCaster(player);
  player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
-  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png?v=route-3`, n.x, n.z, 1.93, 2.67);
+  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png?v=route-4`, n.x, n.z, 1.93, 2.67);
   setSpriteFrame(n.sprite, NPC_REST[i], 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
   n.phase = i * 0.9;            // desync each NPC's sway so they don't breathe in lockstep
   n.baseCenterY = n.sprite.position.y;   // feet-anchor reference for the breathing scale
