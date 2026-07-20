@@ -93,7 +93,7 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 | 15 | 芙蓉 | riverbank florist | long rose-pink braid, flower crown | pale aqua cardigan, cream dress, lavender apron, ankle boots | basket of blue and gold dye flowers |
 | 16 | 賽拉菲爾 | 災歌龍吟遊詩人 — main route | waist-length ink-black hair with an aurora-blue underglow; swept obsidian horn nubs, a thin line of iridescent scales at his jaw and collarbones, slit amethyst eyes | exquisitely tailored black-and-midnight-violet bard coat, asymmetrical blue-black cape, silver throat-collar that suppresses his fatal singing, fitted gloves hiding old claw scars, slim boots | antique seven-string lyre with silver repair seams, folded score with every lyric crossed out |
 | 17 | 莫爾溫 | 暈血死靈法師 — main route | ash-brown undercut with a long loose fringe, exhausted grey-green eyes, faint runic scar around one temple | long bone-white inner coat beneath a black plum-coloured necromancer mantle, tarnished silver chains, charcoal gloves, high boots; immaculate rather than gore-stained | ivory bone familiar, sealed vial of dried grave-dust, a handkerchief he uses when blood makes him faint |
-| 18 | 奧瑞恩 | 無痛放逐聖騎士 — main route | cropped ash-blond hair, a narrow white streak at the temple, clear pale-blue eyes, old scars he cannot feel | ornate sun-gold and ivory plate armour visibly repaired with dark iron staples, faded white tabard, storm-blue half-cape, bandaged hands, heavy travel boots | chipped two-handed consecrated sword, broken halo-shaped reliquary, prayer cord wrapped at his wrist |
+| 18 | 奧瑞恩 | 無痛放逐女聖騎士 — main route | cropped ash-blond bob, a narrow white streak at the temple, clear pale-blue eyes, old scars she cannot feel | ornate sun-gold and ivory plate armour visibly repaired with dark iron staples, faded white tabard, storm-blue half-cape, bandaged hands, heavy travel boots | chipped two-handed consecrated sword, broken halo-shaped reliquary, prayer cord wrapped at her wrist |
 
 ### Main-route character direction
 
@@ -105,8 +105,8 @@ A calamity dragon who longed to sing and play, he first found that scales and cl
 #### 17 — 莫爾溫, 暈血死靈法師
 Morwyn is a survivor of a blood feud whose practical morality has eroded under pursuit and revenge. His necromancy uses old bones, grave dust, echoes, and careful ritual — **never fresh gore or body parts** — because he is genuinely hemophobic and will faint at fresh blood. His route explores the difference between ruthlessness and cruelty. His refined silhouette is a plum-black mantle with clinical ivory layers; the tiny bone familiar and spotless gloves are more important identifiers than skull piles or horror imagery.
 
-#### 18 — 奧瑞恩, 無痛放逐聖騎士
-Orian is devout, kind, and unable to feel physical pain. After the order interpreted his dangerous self-sacrifice as a theological failure, he was exiled. He now seeks danger with an outwardly calm "find a way to die" wish, but the route must frame this as grief, alienation, and a need for purpose — **not comedy or glamorised self-harm**. His armour is beautiful but repeatedly repaired, and his oversized sword is carried low rather than brandished. The broken halo reliquary and bandaged hands are central visual motifs.
+#### 18 — 奧瑞恩, 無痛放逐女聖騎士
+Orian is devout, kind, and unable to feel physical pain. After the order interpreted her dangerous self-sacrifice as a theological failure, she was exiled. She now seeks danger with an outwardly calm "find a way to die" wish, but the route must frame this as grief, alienation, and a need for purpose — **not comedy or glamorised self-harm**. Her armour is beautiful but repeatedly repaired, and her oversized sword is carried low rather than brandished. The broken halo reliquary and bandaged hands are central visual motifs.
 
 ### Protagonist — 遙 (Haruka)
 

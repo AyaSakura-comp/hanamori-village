@@ -186,7 +186,7 @@ class VillageAppContract(unittest.TestCase):
 
         self.assertEqual(js.count(",face:"), 19)
         self.assertIn("const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1]", js)
-        for character in ["災歌龍吟遊詩人", "暈血死靈法師", "無痛放逐聖騎士"]:
+        for character in ["災歌龍吟遊詩人", "暈血死靈法師", "無痛放逐女聖騎士"]:
             self.assertIn(character, design)
         for face in range(6, 19):
             self.assertIn(f"| {face} |", design)
@@ -222,7 +222,7 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn('class="portrait-frame hero-side"', html)
         self.assertIn('class="portrait-frame npc-side"', html)
         self.assertIn('assets/dialogue/hero.png?v=full-1', html)
-        self.assertIn("assets/dialogue/npc-${npc.face}.png?v=full-1", js)
+        self.assertIn("assets/dialogue/npc-${npc.face}.png?v=full-2", js)
         self.assertIn("rotateY(-9deg)", css)
         self.assertIn("rotateY(9deg)", css)
         self.assertIn('id="story-text"', html)

@@ -320,7 +320,7 @@ function loadAssets() {
  setSpriteFrame(player, HERO_IDLE_FRAME, 0, 3, 4); shadowGenerator.addShadowCaster(player);
  player.contact = contactShadow(0, 0.8, 1.5, 1.1);
  npcs.forEach((n, i) => {
-  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png`, n.x, n.z, 1.93, 2.67);
+  n.sprite = createBillboard(`npc-${i}`, `assets/npcs/npc-idle-${i}.png?v=route-2`, n.x, n.z, 1.93, 2.67);
   setSpriteFrame(n.sprite, NPC_REST[i], 0, 3, 1); shadowGenerator.addShadowCaster(n.sprite);
   n.phase = i * 0.9;            // desync each NPC's sway so they don't breathe in lockstep
   n.baseCenterY = n.sprite.position.y;   // feet-anchor reference for the breathing scale
@@ -496,7 +496,7 @@ function stopTouch(e) {
  touchStart = null; origin = null; vector = { x: 0, y: 0 }; document.querySelector('#touch-indicator').classList.remove('active'); document.querySelector('#touch-knob').style.transform = '';
 }
 function nearest() { return npcs.find(n => Math.hypot(n.x - player.position.x, n.z - player.position.z) < 2.4); }
-function interact() { const npc = nearest(); if (!npc) return; activeNpc = npc; line = 0; talking = true; document.querySelector('#hint').classList.remove('show'); document.querySelector('#story').className = 'active'; document.querySelector('#story-cg').src = `assets/dialogue/npc-${npc.face}.png?v=full-1`; document.querySelector('#story-name').textContent = npc.name; advanceStory(); }
+function interact() { const npc = nearest(); if (!npc) return; activeNpc = npc; line = 0; talking = true; document.querySelector('#hint').classList.remove('show'); document.querySelector('#story').className = 'active'; document.querySelector('#story-cg').src = `assets/dialogue/npc-${npc.face}.png?v=full-2`; document.querySelector('#story-name').textContent = npc.name; advanceStory(); }
 function advanceStory() { if (!activeNpc) return; if (line >= activeNpc.lines.length) return endStory(); document.querySelector('#story-text').textContent = activeNpc.lines[line++]; }
 function endStory() { document.querySelector('#story').className = ''; activeNpc = null; talking = false; }
 const keys = new Set();
