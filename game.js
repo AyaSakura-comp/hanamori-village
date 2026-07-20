@@ -16,7 +16,17 @@ const npcs = [
  { x: -9, z: 1.4, name:'莎婆婆',face:2, lines: ['呵呵，年輕人，你終於走到河畔來了。', '過橋後是麵包坊，清晨總能聞到蜂蜜麵包的香味。', '溪水不能直接走過去，要從中央石橋通行。', '記住道路不只是方向，也是村民一起生活的痕跡。'] },
  { x: -22, z: 0.6, name:'艾妲',face:3, lines: ['歡迎來到河畔麵包坊！我是店主艾妲。', '今天烤的是蜂蜜核桃麵包，香味連橋那頭都聞得到。', '莉亞說你正在認識村子，所以這一個送給你。', '下次帶朋友一起來，我會替你們留靠窗的位置！'] },
  { x: 14, z: 1.4, name:'凱恩',face:4, lines: ['站住……啊，是新來的旅行者。我是巡守凱恩。', '村裡很和平，但夜裡過橋還是要留意濕滑的石階。', '若看到圍籬損壞，請告訴我或木匠米洛。', '放心探索吧，我會守著通往村外的道路。'] },
- { x: -3, z: -0.4, name:'菲菲',face:5, lines: ['你也是來看廣場噴泉的嗎？我是菲菲！', '我每天都數水花，可是每次數到二十就忘記了。', '莎婆婆說，忘記的願望會變成河邊的小花。', '所以我決定再許一個願望：希望你明天也會來！'] }
+ { x: -3, z: -0.4, name:'菲菲',face:5, lines: ['你也是來看廣場噴泉的嗎？我是菲菲！', '我每天都數水花，可是每次數到二十就忘記了。', '莎婆婆說，忘記的願望會變成河邊的小花。', '所以我決定再許一個願望：希望你明天也會來！'] },
+ { x:-33, z:1.0, name:'星羅',face:6, lines:['星星還沒亮，你就找到觀星台了。', '我是星羅，替村人記錄季節與潮汐的占星師。', '今晚北方會有一顆流星，願望要說得簡短才聽得見。', '若你迷路，就抬頭找最亮的那顆星吧。'] },
+ { x:-29, z:-0.8, name:'奧林',face:7, lines:['河邊的風很誠實，它會告訴你魚在哪裡。', '我是漁夫奧林，今天的網裡全是銀鱗鯉。', '橋下的水流急，別為了好奇走到濕石上。', '明早來碼頭吧，我分你一碗熱魚湯。'] },
+ { x:-18, z:1.5, name:'梅爾',face:8, lines:['小心腳邊，那株月薄荷可不能踩。', '我是草藥師梅爾，正在替診療所曬藥。', '葉緣帶銀光的是安神草，紫花的則要遠遠觀賞。', '旅途若累了，來換一包暖身藥茶。'] },
+ { x:-14, z:-0.9, name:'琴音',face:9, lines:['噓，下一個音符正從風裡飛過來。', '我是琴音，帶著魯特琴走遍各地收集旋律。', '花守村的石板路踩起來像四拍子的前奏。', '等黃昏再深一點，我為你彈一首新曲。'] },
+ { x:-6, z:1.7, name:'露娜',face:10, lines:['呼，這封信總算送到村裡了！', '我是信使露娜，最熟悉每一條山路和捷徑。', '郵袋裡有遠方的消息，也有回家的盼望。', '若你要寄信給誰，我明天清晨會經過村口。'] },
+ { x:0, z:-1.0, name:'托比',face:11, lines:['叮！這一下敲得剛剛好。', '我是鐵匠學徒托比，正在替師傅整理馬蹄鐵。', '火爐的顏色像晚霞時，鐵才最聽話。', '別擔心，等我出師也能替旅行者做可靠的裝備。'] },
+ { x:8, z:1.6, name:'瑟西亞',face:12, lines:['請放輕腳步，書本也喜歡安靜的午後。', '我是瑟西亞，鐘樓小書室的管理人。', '最上層那本綠皮書記著花守村最早的地圖。', '等你讀完，我想聽聽旅人眼中的村莊。'] },
+ { x:11, z:-1.1, name:'諾雅',face:13, lines:['這盞燈的光，晚上會像金色的蒲公英。', '我是燈匠諾雅，負責修理街上的每一盞燈。', '燈罩裡放的是月螢草，風吹也不容易熄。', '天黑前記得回到路上，我會替你留一盞亮的。'] },
+ { x:25, z:1.1, name:'伊凡',face:14, lines:['嘿，旅人，要不要看看剛磨好的木哨？', '我是伊凡，替村裡做玩具和小小機關。', '只要轉動這個齒輪，紙鳥就會拍著翅膀飛起來。', '你若想學，我可以教你把旅途做成紀念品。'] },
+ { x:31, z:-0.7, name:'芙蓉',face:15, lines:['花瓣在水面打轉，表示明天會是晴天。', '我是芙蓉，照看河岸的香草與染料花。', '藍色的花能染布，金色的花則能做甜點。', '等收成時，請挑一朵最喜歡的帶走。'] }
 ];
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
@@ -405,7 +415,7 @@ function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.w
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4, direction === 'right'); }
 // Each NPC holds one calm resting pose; the idle motion is only a subtle breathing/cloth sway.
-const NPC_REST = [2, 1, 0, 1, 0, 0];   // per-NPC resting frame (the calmest of the three poses)
+const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];   // per-NPC resting frame (the calmest of the three poses)
 function animateNpcs() {
  const t = performance.now() / 1000;
  for (const n of npcs) {

@@ -81,10 +81,20 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 | 3 | 艾妲 | baker girl | wavy blonde, shoulder-length | white headscarf/kerchief, cream puff-sleeve blouse, burnt-orange apron dress, white socks, short brown boots | basket of bread (baguettes) |
 | 4 | 凱恩 | town guard (**female knight**) | long, straight black, past the shoulders | blue tabard + short blue skirt over light silver plate armour, dark blue cape, white greaves/boots | sword at hip |
 | 5 | 菲菲 | fountain child | light teal/blue | wide tan sun hat, cream vintage lace dress | wildflowers + small basket |
+| 6 | 星羅 | village astrologer | midnight-purple side braid, gold star pins | navy scholar's coat, indigo pleated skirt, dark tights, brown ankle boots | brass astrolabe + star chart |
+| 7 | 奧林 | riverside fisherman | wind-tousled dark teal | moss-green knit shirt, slate waterproof vest, rolled brown trousers, rubber boots | fishing rod + woven fish creel |
+| 8 | 梅爾 | herbalist | short forest-green bob, leaf hair clip | mustard hooded capelet, cream tunic, olive skirt, lace-up boots | herb satchel + bundle of moon-mint |
+| 9 | 琴音 | travelling bard | copper-red high ponytail, loose fringe | burgundy cropped jacket, ivory blouse, navy skirt, tall brown boots | walnut lute with blue ribbon |
+| 10 | 露娜 | mountain mail courier | silver side ponytail, crimson ribbon | red short cape, navy travel tunic, cream leggings, sturdy boots | leather letter satchel + sealed envelope |
+| 11 | 托比 | blacksmith apprentice | sandy blond, short and tousled | charcoal work shirt, brown leather apron, navy trousers, heavy boots | small forging hammer + horseshoe |
+| 12 | 瑟西亞 | clocktower librarian | long wavy black, round glasses | ivory high-neck blouse, deep-blue pinafore dress, dark tights, brown shoes | open green book + brass bookmark |
+| 13 | 諾雅 | lantern maker | white cropped hair, amber hairpin | amber work jacket, teal vest, dark shorts, tall boots | glowing moon-grass lantern |
+| 14 | 伊凡 | toy maker | chestnut curls, red neckerchief | powder-blue shirt, tan waistcoat, brown shorts, striped socks | wooden bird automaton + tiny gear |
+| 15 | 芙蓉 | riverbank florist | long rose-pink braid, flower crown | pale aqua cardigan, cream dress, lavender apron, ankle boots | basket of blue and gold dye flowers |
 
 ### Protagonist — 遙 (Haruka)
 
-The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all six NPCs.
+The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all sixteen NPCs.
 
 Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`. Columns are the approved walk cycle — **col 1 is the neutral idle from the middle tile of `frontwalk_tile2.jpg`** (shown when standing), while cols 0/2 are the opposing step poses from `walk_final.gif`, cycled at 8 fps while moving. The supplied artwork's canonical orientation is **left-facing**: keep left/up/down and every idle frame unmirrored, and horizontally mirror only active rightward movement. The character remains front-facing in every directional row (the retired back-facing artwork is not used); keep her feet on the shared baseline (`y≈124`) at the same scale as the NPCs. Regenerate as a single multi-pose sheet (identity-consistent) if the design changes.
 
@@ -106,6 +116,16 @@ The sway is procedural, per `animateNpcs()`: a feet-anchored vertical stretch (~
 | 3 | 艾妲 | frame 1 — hold the bread basket | wave, offer a loaf |
 | 4 | 凱恩 | frame 0 — stand at attention | hand on sword, arms crossed |
 | 5 | 菲菲 | frame 0 — hold wildflowers | cheer arms up, hands behind back |
+| 6 | 星羅 | frame 1 — hold astrolabe | trace a constellation, check star chart |
+| 7 | 奧林 | frame 0 — hold fishing rod | inspect the creel, wave |
+| 8 | 梅爾 | frame 1 — hold moon-mint | sort herbs, offer tea |
+| 9 | 琴音 | frame 1 — hold lute | pluck a chord, bow |
+| 10 | 露娜 | frame 0 — grip letter satchel | raise envelope, catch breath |
+| 11 | 托比 | frame 1 — rest hammer on shoulder | inspect horseshoe, wave |
+| 12 | 瑟西亞 | frame 0 — read open book | adjust glasses, place bookmark |
+| 13 | 諾雅 | frame 1 — hold lantern | lift lantern, check its glow |
+| 14 | 伊凡 | frame 0 — hold wooden bird | wind the gear, present toy |
+| 15 | 芙蓉 | frame 1 — carry flower basket | select a bloom, wave |
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
@@ -119,7 +139,7 @@ The world is a **landscape horizontal side-scroller**. The street runs along the
 - Invisible collision slabs behind backdrop buildings and under solid props.
 
 **2D pixel billboards (flat planes, `BILLBOARDMODE_Y`, always face camera):**
-- Buildings (backdrop rows + a deeper blurred row + fading foreground occluders), the player, all six NPCs, and every vegetation/street prop (trees, bushes, flowerbeds, lamps, barrels, fountain). Building and prop art is generated pixel art matted to transparency.
+- Buildings (backdrop rows + a deeper blurred row + fading foreground occluders), the player, all sixteen NPCs, and every vegetation/street prop (trees, bushes, flowerbeds, lamps, barrels, fountain). Building and prop art is generated pixel art matted to transparency.
 - The glowing rune-circle **decal** on the plaza (a flat additive plane, not a billboard).
 - Soft radial **contact-shadow** decals under every billboard so nothing floats.
 

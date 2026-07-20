@@ -175,10 +175,22 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("name:'艾妲'", js)
         self.assertIn("name:'凱恩'", js)
         self.assertIn("name:'菲菲'", js)
-        self.assertEqual(js.count(",face:"), 6)
+        self.assertEqual(js.count(",face:"), 16)
         for index in range(6):
             self.assertTrue((ROOT / f"assets/npcs/npc-idle-{index}.png").exists())
             self.assertTrue((ROOT / f"assets/village-cg-{index}.png").exists())
+
+    def test_ten_new_npcs_have_documented_designs_and_complete_art_sets(self):
+        js = (ROOT / "game.js").read_text(encoding="utf-8")
+        design = (ROOT / "DESIGN.md").read_text(encoding="utf-8")
+
+        self.assertEqual(js.count(",face:"), 16)
+        self.assertIn("const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]", js)
+        for face in range(6, 16):
+            self.assertIn(f"| {face} |", design)
+            self.assertTrue((ROOT / f"assets/npcs/npc-idle-{face}.png").exists())
+            self.assertTrue((ROOT / f"assets/village-cg-{face}.png").exists())
+            self.assertTrue((ROOT / f"assets/dialogue/npc-{face}.png").exists())
 
     def test_foreground_houses_sit_low_in_the_portrait_frame(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
