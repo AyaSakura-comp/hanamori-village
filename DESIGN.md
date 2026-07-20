@@ -86,7 +86,7 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 
 The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all six NPCs.
 
-Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`. Columns are the approved walk cycle — **col 1 is the neutral idle from the middle tile of `frontwalk_tile2.jpg`** (shown when standing), while cols 0/2 are the opposing step poses from `walk_final.gif`, cycled at 8 fps while moving. The character is front-facing in every directional row (the retired back-facing artwork is not used); keep her feet on the shared baseline (`y≈124`) at the same scale as the NPCs. Regenerate as a single multi-pose sheet (identity-consistent) if the design changes.
+Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`. Columns are the approved walk cycle — **col 1 is the neutral idle from the middle tile of `frontwalk_tile2.jpg`** (shown when standing), while cols 0/2 are the opposing step poses from `walk_final.gif`, cycled at 8 fps while moving. The supplied artwork's canonical orientation is **left-facing**: keep left/up/down and every idle frame unmirrored, and horizontally mirror only active rightward movement. The character remains front-facing in every directional row (the retired back-facing artwork is not used); keep her feet on the shared baseline (`y≈124`) at the same scale as the NPCs. Regenerate as a single multi-pose sheet (identity-consistent) if the design changes.
 
 Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
 
@@ -143,7 +143,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - Do verify every visual change at 390 × 844.
 - Do keep player movement responsive at 280 world pixels per second.
 - Do use Babylon.js orthographic camera following, X/Z mesh collisions, and nearest-neighbor textures.
-- Do account for Babylon's inverted V sheet coordinates: runtime player rows are `{down:3,left:2,right:1,up:3}`. Walking left/right must face the matching screen direction. Both depth directions retain the front-facing art; the back-facing row is retired and must never appear.
+- Do account for Babylon's inverted V sheet coordinates: runtime player rows are `{down:3,left:2,right:1,up:3}`. The source sprite is left-facing; only an active rightward walk is horizontally mirrored, while idle and depth movement retain the original left-facing pose. The back-facing row is retired and must never appear.
 - Do preserve the three-district road plan, eleven distinct HD-2D fantasy building types, layered foreground atmosphere, and transparent chibi pixel sprites.
 - Do keep the guild, magic shop, alchemist, smithy, tavern, bakery, flower shop, chapel, home, clocktower, and market visually distinct.
 - Do keep roads high contrast and unobstructed even when adding atmospheric effects or large buildings.

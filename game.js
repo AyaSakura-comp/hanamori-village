@@ -299,7 +299,7 @@ function createBillboard(name, url, x, z, width, height) {
  p.position.set(x, height / 2, z); p.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y;
  p.material = spriteMaterial(`${name}-mat`, url); return p;
 }
-function setSpriteFrame(mesh, column, row, columns, rows) { const t = mesh.material.diffuseTexture; t.uScale = 1 / columns; t.vScale = 1 / rows; t.uOffset = column / columns; t.vOffset = row / rows; }
+function setSpriteFrame(mesh, column, row, columns, rows, flip = false) { const t = mesh.material.diffuseTexture; t.uScale = (flip ? -1 : 1) / columns; t.vScale = 1 / rows; t.uOffset = flip ? (column + 1) / columns : column / columns; t.vOffset = row / rows; }
 
 function loadAssets() {
  player = createBillboard('player', 'assets/hero-walk.png', 0, 0.8, 2.0, 2.75);
@@ -403,7 +403,7 @@ function createScene() {
 
 function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.width / LANDSCAPE_RENDER.height; const view = debugEnabled ? debugCamera.view : CAM.view; camera.orthoTop = view * 1.02; camera.orthoBottom = -view * 0.98; camera.orthoLeft = -view * aspect; camera.orthoRight = view * aspect; }
 
-function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4); }
+function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4, direction === 'right'); }
 // Each NPC holds one calm resting pose; the idle motion is only a subtle breathing/cloth sway.
 const NPC_REST = [2, 1, 0, 1, 0, 0];   // per-NPC resting frame (the calmest of the three poses)
 function animateNpcs() {
