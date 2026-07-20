@@ -90,6 +90,8 @@ Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`
 
 Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
 
+**Dialogue portraits** (`assets/dialogue/`): during a conversation the two speakers face inward — the **player (遙) portrait sits on the LEFT** (`hero.png`, her CG turned ¾ to the right so she faces the centre), and the **NPC portrait on the RIGHT** (`npc-{face}.png`, turned to face left). 遙's dialogue portrait is her full-body traveller CG matted to transparency on the shared 900×900 canvas.
+
 ### Idle animations
 
 Each NPC **holds one calm resting pose** — the idle motion is deliberately small: a gentle breathing/cloth sway, not pose-swapping. The sprite sheet (`npc-idle-{face}.png`, `288×128`, three `96×128` frames) is still authored as one multi-pose sheet (generated in a single pass so identity never morphs, every frame sharing one scale factor and a common feet baseline), but at runtime only the character's resting frame (`NPC_REST`) is shown. The other two poses remain in the sheet as a reserve for future richer idles.
