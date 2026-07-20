@@ -90,7 +90,7 @@ Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`
 
 Pixel sprites are generated in the chibi Elin-sprite pixel-art style, matted to transparency, and assembled into the runtime idle/walk sheets.
 
-**Dialogue portraits** (`assets/dialogue/`): during a conversation the two speakers face inward — the **player (遙) portrait sits on the LEFT** (`hero.png`, her CG turned ¾ to the right so she faces the centre), and the **NPC portrait on the RIGHT** (`npc-{face}.png`, turned to face left). 遙's dialogue portrait is her full-body traveller CG matted to transparency on the shared 900×900 canvas.
+**Dialogue portraits** (`assets/dialogue/`): during a conversation the two speakers face inward — the **player (遙) portrait sits on the LEFT** (`hero.png`, her CG turned ¾ to the right so she faces the centre), and the **NPC portrait on the RIGHT** (`npc-{face}.png`, turned to face left). 遙's dialogue portrait preserves her complete transparent full-body CG; it is not reduced to a half-body crop.
 
 ### Idle animations
 
@@ -136,7 +136,7 @@ Dialogue panels use softly rounded rectangles. Touch indicators and the talk act
 - **No persistent HUD:** exploration shows only the location label; there is no standing dialogue panel and no talk button. The whole screen is the control surface.
 - **Tap to talk:** a quick tap (small movement, short duration) that is not a joystick drag opens a conversation when the player is close enough to an NPC; a subtle rounded **hint** pill ("點一下說話") fades in only while within range.
 - **Story panel:** large bottom caption with speaker name in gold and 20px body copy; tapping the story overlay advances it.
-- **Dialogue portraits:** show only half-body compositions above the story panel: the protagonist is always anchored on the left and angled slightly right, while the active NPC stays on the right and angles slightly left. Normalize both to tight-alpha transparent dialogue crops with **exactly 480 px visible alpha width**, a shared top edge, and at least the protagonist crop height; do not compensate using unequal CSS scale transforms or padded square canvases. The portrait stage extends behind the compact bottom dialogue box (about 98 px minimum height at the reference landscape frame), which hides the lower body rather than exposing a raw image-crop edge above the panel. Source PNGs stay transparent without a white matte.
+- **Dialogue portraits:** display complete full-body transparent illustrations: the protagonist is always anchored on the left and angled slightly right, while the active NPC stays on the right and angles slightly left. Only trim entirely empty outer alpha padding; never crop away body pixels or normalize the body into a half-body composition. The portrait stage extends behind the compact bottom dialogue box (about 98 px minimum height at the reference landscape frame); that higher-z-index panel, not the asset pipeline, hides the lower body. Source PNGs stay transparent without a white matte.
 
 ## Do's and Don'ts
 
