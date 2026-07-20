@@ -26,7 +26,10 @@ const npcs = [
  { x:8, z:1.6, name:'瑟西亞',face:12, lines:['請放輕腳步，書本也喜歡安靜的午後。', '我是瑟西亞，鐘樓小書室的管理人。', '最上層那本綠皮書記著花守村最早的地圖。', '等你讀完，我想聽聽旅人眼中的村莊。'] },
  { x:11, z:-1.1, name:'諾雅',face:13, lines:['這盞燈的光，晚上會像金色的蒲公英。', '我是燈匠諾雅，負責修理街上的每一盞燈。', '燈罩裡放的是月螢草，風吹也不容易熄。', '天黑前記得回到路上，我會替你留一盞亮的。'] },
  { x:25, z:1.1, name:'伊凡',face:14, lines:['嘿，旅人，要不要看看剛磨好的木哨？', '我是伊凡，替村裡做玩具和小小機關。', '只要轉動這個齒輪，紙鳥就會拍著翅膀飛起來。', '你若想學，我可以教你把旅途做成紀念品。'] },
- { x:31, z:-0.7, name:'芙蓉',face:15, lines:['花瓣在水面打轉，表示明天會是晴天。', '我是芙蓉，照看河岸的香草與染料花。', '藍色的花能染布，金色的花則能做甜點。', '等收成時，請挑一朵最喜歡的帶走。'] }
+ { x:31, z:-0.7, name:'芙蓉',face:15, lines:['花瓣在水面打轉，表示明天會是晴天。', '我是芙蓉，照看河岸的香草與染料花。', '藍色的花能染布，金色的花則能做甜點。', '等收成時，請挑一朵最喜歡的帶走。'] },
+ { x:-25, z:1.6, name:'賽拉菲爾',face:16, lines:['別害怕。我沒有要唱……我知道那樣的歌會帶來什麼。', '在很久以前，我是將災厄帶往人間的龍；如今只想成為一個彈琴的吟遊詩人。', '這雙手曾有鱗片和龍爪，碰壞過每一件樂器；化成人形後，詛咒卻留在我的聲音裡。', '如果有一天你願意聽我彈完一首沒有歌詞的曲子，我想那大概就是我的願望。'] },
+ { x:16.5, z:-1.3, name:'莫爾溫',face:17, lines:['別靠太近……不是怕你，是那些血。聞到就夠讓人反胃。', '我背著家族留下的血仇，也背著死靈術；為了活下來和復仇，我做過很多不配被原諒的事。', '但我只召喚早已歸於塵土的骨骸與殘響。新鮮的屍塊？我寧願面對一百個敵人。', '別把我的厭惡當成良善。我只是還沒決定，復仇結束後該成為什麼。'] },
+ { x:22, z:1.5, name:'奧瑞恩',face:18, lines:['這道裂痕不疼。沒有任何一道傷會疼，這正是問題。', '我曾是聖騎士，虔誠到願意替所有人擋下刀刃；最後卻因為不畏傷痛而被教團放逐。', '我一直在找一場足以結束我的戰鬥，不是因為絕望，而是想確認自己還有沒有活著的理由。', '若你願意，陪我走一段路吧。也許意義不是在終點，而是有人不讓我獨自衝向終點。'] }
 ];
 const BUILDINGS=['guild','magic','alchemy','smithy','tavern','bakery','flower','chapel','home','clocktower','market'];
 const occluders = [];   // foreground buildings that fade out when the player walks behind them
@@ -415,7 +418,7 @@ function resizeCamera() { if (!camera) return; const aspect = LANDSCAPE_RENDER.w
 
 function animatePlayer(moving, dt) { const row = {down:3,left:2,right:1,up:3}[direction]; if (!moving) { setSpriteFrame(player, HERO_IDLE_FRAME, row, 3, 4); return; } walkClock += dt; setSpriteFrame(player, Math.floor(walkClock * 8) % 3, row, 3, 4, direction === 'right'); }
 // Each NPC holds one calm resting pose; the idle motion is only a subtle breathing/cloth sway.
-const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];   // per-NPC resting frame (the calmest of the three poses)
+const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1];   // per-NPC resting frame (the calmest of the three poses)
 function animateNpcs() {
  const t = performance.now() / 1000;
  for (const n of npcs) {

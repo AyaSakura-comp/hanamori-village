@@ -91,10 +91,26 @@ The full-body dialogue CG (`assets/village-cg-{face}.png`) is the **source of tr
 | 13 | 諾雅 | lantern maker | white cropped hair, amber hairpin | amber work jacket, teal vest, dark shorts, tall boots | glowing moon-grass lantern |
 | 14 | 伊凡 | toy maker | chestnut curls, red neckerchief | powder-blue shirt, tan waistcoat, brown shorts, striped socks | wooden bird automaton + tiny gear |
 | 15 | 芙蓉 | riverbank florist | long rose-pink braid, flower crown | pale aqua cardigan, cream dress, lavender apron, ankle boots | basket of blue and gold dye flowers |
+| 16 | 賽拉菲爾 | 災歌龍吟遊詩人 — main route | waist-length ink-black hair with an aurora-blue underglow; swept obsidian horn nubs, a thin line of iridescent scales at his jaw and collarbones, slit amethyst eyes | exquisitely tailored black-and-midnight-violet bard coat, asymmetrical blue-black cape, silver throat-collar that suppresses his fatal singing, fitted gloves hiding old claw scars, slim boots | antique seven-string lyre with silver repair seams, folded score with every lyric crossed out |
+| 17 | 莫爾溫 | 暈血死靈法師 — main route | ash-brown undercut with a long loose fringe, exhausted grey-green eyes, faint runic scar around one temple | long bone-white inner coat beneath a black plum-coloured necromancer mantle, tarnished silver chains, charcoal gloves, high boots; immaculate rather than gore-stained | ivory bone familiar, sealed vial of dried grave-dust, a handkerchief he uses when blood makes him faint |
+| 18 | 奧瑞恩 | 無痛放逐聖騎士 — main route | cropped ash-blond hair, a narrow white streak at the temple, clear pale-blue eyes, old scars he cannot feel | ornate sun-gold and ivory plate armour visibly repaired with dark iron staples, faded white tabard, storm-blue half-cape, bandaged hands, heavy travel boots | chipped two-handed consecrated sword, broken halo-shaped reliquary, prayer cord wrapped at his wrist |
+
+### Main-route character direction
+
+Faces **16–18** are the three primary romance-route characters. They must visibly outrank ordinary villagers in silhouette, material detail, emotional storytelling, and portrait resolution: their full-body CGs are rendered at the same transparent 1184×1776 source size but use denser costume construction, readable personal symbols, and a deliberate ¾ inward-facing composition. Their map sprites remain chibi and legible at 96×128, but must retain each route's unmistakable silhouette (horns/lyre, mantle/bone familiar, oversized sword/armour).
+
+#### 16 — 賽拉菲爾, 災歌龍吟遊詩人
+A calamity dragon who longed to sing and play, he first found that scales and claws destroyed the instruments he tried to hold. His human form gives him gentle hands, but the calamity remains in his voice: every sung note becomes an omen of death. His route is quiet, tender, and restrained rather than villainous. Keep **no active singing pose** in his art. The silver throat collar, scored-out lyrics, horn nubs, and subtle scale sheen must read even in the pixel sprite; the lyre is always treated with reverence.
+
+#### 17 — 莫爾溫, 暈血死靈法師
+Morwyn is a survivor of a blood feud whose practical morality has eroded under pursuit and revenge. His necromancy uses old bones, grave dust, echoes, and careful ritual — **never fresh gore or body parts** — because he is genuinely hemophobic and will faint at fresh blood. His route explores the difference between ruthlessness and cruelty. His refined silhouette is a plum-black mantle with clinical ivory layers; the tiny bone familiar and spotless gloves are more important identifiers than skull piles or horror imagery.
+
+#### 18 — 奧瑞恩, 無痛放逐聖騎士
+Orian is devout, kind, and unable to feel physical pain. After the order interpreted his dangerous self-sacrifice as a theological failure, he was exiled. He now seeks danger with an outwardly calm "find a way to die" wish, but the route must frame this as grief, alienation, and a need for purpose — **not comedy or glamorised self-harm**. His armour is beautiful but repeatedly repaired, and his oversized sword is carried low rather than brandished. The broken halo reliquary and bandaged hands are central visual motifs.
 
 ### Protagonist — 遙 (Haruka)
 
-The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all sixteen NPCs.
+The player character is **遙 (Haruka)**, a cheerful young traveller. Design (canonical for `assets/hero-walk.png`): soft **lavender short wavy hair** under a **green beret**; **cream/white blouse**; **brown traveller's vest**; **khaki short shorts**; **brown lace-up boots**; a **brown leather satchel** worn across the shoulder. Her palette is deliberately distinct from all nineteen NPCs.
 
 Walk sheet: `assets/hero-walk.png`, `288×512`, 3 columns × 4 rows of `96×128`. Columns are the approved walk cycle — **col 1 is the neutral idle from the middle tile of `frontwalk_tile2.jpg`** (shown when standing), while cols 0/2 are the opposing step poses from `walk_final.gif`, cycled at 8 fps while moving. The supplied artwork's canonical orientation is **left-facing**: keep left/up/down and every idle frame unmirrored, and horizontally mirror only active rightward movement. The character remains front-facing in every directional row (the retired back-facing artwork is not used); keep her feet on the shared baseline (`y≈124`) at the same scale as the NPCs. Regenerate as a single multi-pose sheet (identity-consistent) if the design changes.
 
@@ -126,6 +142,9 @@ The sway is procedural, per `animateNpcs()`: a feet-anchored vertical stretch (~
 | 13 | 諾雅 | frame 1 — hold lantern | lift lantern, check its glow |
 | 14 | 伊凡 | frame 0 — hold wooden bird | wind the gear, present toy |
 | 15 | 芙蓉 | frame 1 — carry flower basket | select a bloom, wave |
+| 16 | 賽拉菲爾 | frame 1 — hold seven-string lyre silently | adjust throat collar, touch crossed-out score |
+| 17 | 莫爾溫 | frame 0 — hold bone familiar at his sleeve | inspect grave dust, turn away from blood-red flower |
+| 18 | 奧瑞恩 | frame 1 — carry sword lowered at his side | check broken reliquary, tighten wrist prayer cord |
 
 ## Camera & terrain (HD-2D horizontal side-scroller)
 
@@ -139,7 +158,7 @@ The world is a **landscape horizontal side-scroller**. The street runs along the
 - Invisible collision slabs behind backdrop buildings and under solid props.
 
 **2D pixel billboards (flat planes, `BILLBOARDMODE_Y`, always face camera):**
-- Buildings (backdrop rows + a deeper blurred row + fading foreground occluders), the player, all sixteen NPCs, and every vegetation/street prop (trees, bushes, flowerbeds, lamps, barrels, fountain). Building and prop art is generated pixel art matted to transparency.
+- Buildings (backdrop rows + a deeper blurred row + fading foreground occluders), the player, all nineteen NPCs, and every vegetation/street prop (trees, bushes, flowerbeds, lamps, barrels, fountain). Building and prop art is generated pixel art matted to transparency.
 - The glowing rune-circle **decal** on the plaza (a flat additive plane, not a billboard).
 - Soft radial **contact-shadow** decals under every billboard so nothing floats.
 

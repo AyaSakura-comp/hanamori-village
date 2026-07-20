@@ -175,18 +175,20 @@ class VillageAppContract(unittest.TestCase):
         self.assertIn("name:'艾妲'", js)
         self.assertIn("name:'凱恩'", js)
         self.assertIn("name:'菲菲'", js)
-        self.assertEqual(js.count(",face:"), 16)
+        self.assertEqual(js.count(",face:"), 19)
         for index in range(6):
             self.assertTrue((ROOT / f"assets/npcs/npc-idle-{index}.png").exists())
             self.assertTrue((ROOT / f"assets/village-cg-{index}.png").exists())
 
-    def test_ten_new_npcs_have_documented_designs_and_complete_art_sets(self):
+    def test_new_npcs_have_documented_designs_and_complete_art_sets(self):
         js = (ROOT / "game.js").read_text(encoding="utf-8")
         design = (ROOT / "DESIGN.md").read_text(encoding="utf-8")
 
-        self.assertEqual(js.count(",face:"), 16)
-        self.assertIn("const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]", js)
-        for face in range(6, 16):
+        self.assertEqual(js.count(",face:"), 19)
+        self.assertIn("const NPC_REST = [2, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1]", js)
+        for character in ["災歌龍吟遊詩人", "暈血死靈法師", "無痛放逐聖騎士"]:
+            self.assertIn(character, design)
+        for face in range(6, 19):
             self.assertIn(f"| {face} |", design)
             self.assertTrue((ROOT / f"assets/npcs/npc-idle-{face}.png").exists())
             self.assertTrue((ROOT / f"assets/village-cg-{face}.png").exists())
